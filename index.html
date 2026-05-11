@@ -1,22 +1,17 @@
 <!DOCTYPE html>
-<!-- saved from url=(0048)file:///C:/Users/giovanni/Downloads/index_1.html -->
-<html lang="it"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-
+<html lang="it">
+<head>
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>BIVACCO·70 — Quaderno di Campo</title>
-<link rel="preconnect" href="https://fonts.googleapis.com/">
-<link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
-<link href="./BIVACCO·70 — Quaderno di Campo_files/css2" rel="stylesheet">
-<!-- LUCIDE ICONS (libreria di icone SVG, line style, perfette per il vibe outdoor) -->
-<script src="./BIVACCO·70 — Quaderno di Campo_files/lucide.min.js.download"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT@0,9..144,300..900,0..100;1,9..144,300..900,0..100&family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 
-<!-- LEAFLET (mappe interattive con tile OpenTopoMap / OpenStreetMap, no API key) -->
-<link rel="stylesheet" href="./BIVACCO·70 — Quaderno di Campo_files/leaflet.css" crossorigin="">
-<script src="./BIVACCO·70 — Quaderno di Campo_files/leaflet.js.download" crossorigin=""></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
 
-<!-- ===========================================================
-     FIREBASE (Cloud sync per dati: Firestore + Google Sign-In)
-     =========================================================== -->
 <script type="module">
   // Modular SDK v12 — solo i moduli che ci servono
   import { initializeApp }
@@ -30,12 +25,12 @@
 
   // === INCOLLA QUI LA TUA CONFIG FIREBASE ===
   const firebaseConfig = {
-    apiKey: "AIzaSyBvnnfJCMq5uEjMA7VoFuxV7m63xA3-fEA",
-    authDomain: "inviaggiocongiovanni.firebaseapp.com",
-    projectId: "inviaggiocongiovanni",
-    storageBucket: "inviaggiocongiovanni.firebasestorage.app",
-    messagingSenderId: "357273410261",
-    appId: "1:357273410261:web:4382c0aa1528328d5da05c"
+    apiKey: "INCOLLA_LA_TUA_API_KEY",
+    authDomain: "INCOLLA_IL_TUO.firebaseapp.com",
+    projectId: "INCOLLA_IL_TUO_PROJECT_ID",
+    storageBucket: "INCOLLA.firebasestorage.app",
+    messagingSenderId: "INCOLLA_SENDER_ID",
+    appId: "INCOLLA_APP_ID"
   };
   // === FINE BLOCCO CONFIG ===
 
@@ -89,6 +84,11 @@
 
     --serif: 'Fraunces', 'Georgia', serif;
     --mono: 'JetBrains Mono', 'Menlo', monospace;
+
+    /* RAGGI DI CURVATURA AGGIUNTI PER GRAFICA TONDEGGIANTE */
+    --rad-sm: 6px;
+    --rad-md: 14px;
+    --rad-lg: 20px;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -204,7 +204,7 @@
     text-transform: uppercase;
     color: var(--forest-soft);
     padding: 8px 14px;
-    border-radius: 2px;
+    border-radius: var(--rad-sm);
     cursor: pointer;
     background: none;
     border: 1px solid transparent;
@@ -244,15 +244,17 @@
     position: relative;
   }
 
-  /* CONTOUR DECORATION (subtle topo lines as a wallpaper, NOT a drawn image) */
+  /* CONTOUR DECORATION — Anelli d'albero (Organico) */
   .contour-bg {
     position: absolute;
     inset: 0;
     pointer-events: none;
     z-index: 0;
-    opacity: 0.18;
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='600' height='600' viewBox='0 0 600 600'><g fill='none' stroke='%231f2d1c' stroke-width='0.8'><path d='M-50,420 Q150,380 320,400 T700,360'/><path d='M-50,440 Q140,410 310,420 T700,388'/><path d='M-50,460 Q130,440 300,450 T700,422'/><path d='M-50,480 Q120,468 290,478 T700,455'/><path d='M-50,500 Q110,490 280,500 T700,484'/><path d='M-50,520 Q100,512 270,522 T700,510'/><path d='M-50,540 Q90,535 260,545 T700,536'/><path d='M-50,200 Q170,180 330,190 T700,170'/><path d='M-50,220 Q160,205 320,215 T700,192'/><path d='M-50,240 Q150,230 310,238 T700,218'/></g></svg>");
+    opacity: 0.08;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='600' height='600' viewBox='0 0 600 600'><g fill='none' stroke='%231f2d1c' stroke-width='1.5'><path d='M300,280 C320,280 330,290 330,310 C330,330 310,340 290,340 C270,340 260,320 260,300 C260,280 280,280 300,280 Z'/><path d='M300,240 C350,245 370,270 380,320 C385,360 350,390 300,390 C250,390 210,360 210,310 C210,260 250,235 300,240 Z'/><path d='M300,190 C380,200 420,250 430,330 C440,390 380,440 300,440 C210,440 150,390 150,310 C150,230 210,180 300,190 Z'/><path d='M300,140 C420,150 480,220 490,330 C500,420 420,490 300,490 C170,490 100,420 90,310 C80,200 170,130 300,140 Z'/><path d='M300,80 C470,90 540,180 560,320 C570,460 460,550 300,550 C120,550 40,460 30,310 C20,160 120,70 300,80 Z'/><path d='M300,20 C530,30 610,150 630,320 C640,510 510,610 300,610 C70,610 -20,500 -30,310 C-40,110 70,10 300,20 Z'/></g></svg>");
     background-size: 800px;
+    background-position: top center;
+    background-repeat: repeat;
   }
 
   /* HERO */
@@ -319,6 +321,7 @@
     overflow: hidden;
     background: var(--sand-mid);
     border: 1px solid var(--forest-ghost);
+    border-radius: var(--rad-lg);
   }
   .hero-image-wrap img {
     width: 100%; height: 100%;
@@ -360,6 +363,7 @@
     align-items: center;
     gap: 6px;
     transition: background 0.15s;
+    border-radius: var(--rad-sm);
   }
   .hero-image-btn:hover { background: var(--forest); }
 
@@ -369,6 +373,8 @@
     gap: 1px;
     background: var(--forest-ghost);
     border: 1px solid var(--forest-ghost);
+    border-radius: var(--rad-md);
+    overflow: hidden;
   }
   .stat {
     background: var(--sand);
@@ -457,22 +463,26 @@
   .grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 0;
-    border-top: 1px solid var(--forest-ghost);
-    border-left: 1px solid var(--forest-ghost);
+    gap: 16px; /* Aggiunto gap visto che abbiamo i border-radius ora */
+    /* Tolti i border di griglia perchè stiamo passando a cards staccate per via del border-radius */
   }
 
   .card {
     background: var(--sand);
-    border-right: 1px solid var(--forest-ghost);
-    border-bottom: 1px solid var(--forest-ghost);
+    border: 1px solid var(--forest-ghost); /* Border per ogni singola card */
     cursor: pointer;
     position: relative;
-    transition: background 0.18s;
+    transition: background 0.18s, transform 0.15s, box-shadow 0.15s;
     display: flex;
     flex-direction: column;
+    border-radius: var(--rad-md);
+    overflow: hidden;
   }
-  .card:hover { background: var(--sand-light); }
+  .card:hover { 
+    background: var(--sand-light); 
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-card);
+  }
 
   .card-cover {
     aspect-ratio: 16 / 9;
@@ -480,6 +490,7 @@
     position: relative;
     overflow: hidden;
     border-bottom: 1px solid var(--forest-ghost);
+    border-radius: var(--rad-md) var(--rad-md) 0 0;
   }
   .card-cover img {
     width: 100%; height: 100%;
@@ -598,7 +609,6 @@
   .card-add {
     background: transparent;
     border: 1.5px dashed var(--forest-ghost);
-    margin: -1px;
     color: var(--forest-faint);
     display: flex;
     align-items: center;
@@ -609,11 +619,13 @@
     padding: 60px 20px;
     min-height: 320px;
     transition: all 0.2s;
+    border-radius: var(--rad-md);
   }
   .card-add:hover {
     background: var(--sand-light);
     border-color: var(--clay);
     color: var(--clay);
+    transform: translateY(-2px);
   }
   .card-add-text {
     font-family: var(--mono);
@@ -630,6 +642,7 @@
     text-align: center;
     color: var(--forest-faint);
     background: var(--sand-light);
+    border-radius: var(--rad-md);
   }
   .empty-icon { color: var(--forest-ghost); margin-bottom: 14px; }
   .empty-title {
@@ -664,7 +677,7 @@
     display: inline-flex;
     align-items: center;
     gap: 10px;
-    border-radius: 2px;
+    border-radius: var(--rad-sm);
   }
   .btn:hover { background: var(--forest); color: var(--bone); }
   .btn-primary {
@@ -719,6 +732,7 @@
     position: relative;
     overflow: hidden;
     border: 1px solid var(--forest-ghost);
+    border-radius: var(--rad-md);
   }
   .detail-hero img { width: 100%; height: 100%; object-fit: cover; display: block; }
   .detail-hero-placeholder {
@@ -746,6 +760,7 @@
     display: inline-flex;
     align-items: center;
     gap: 6px;
+    border-radius: var(--rad-sm);
   }
   .detail-hero-add-btn:hover { background: var(--forest); }
 
@@ -843,6 +858,8 @@
     background: var(--forest-ghost);
     border: 1px solid var(--forest-ghost);
     align-self: start;
+    border-radius: var(--rad-md);
+    overflow: hidden;
   }
   .detail-side-row {
     background: var(--sand);
@@ -876,6 +893,7 @@
     padding: 18px 20px;
     border-left: 3px solid var(--olive);
     background: var(--sand-light);
+    border-radius: var(--rad-md);
   }
   .field-notes-label {
     font-family: var(--mono);
@@ -976,6 +994,7 @@
     display: inline-flex;
     align-items: center;
     gap: 6px;
+    border-radius: var(--rad-sm);
   }
   .stage-type.type-camp     { color: var(--moss);  border-color: var(--moss);  background: rgba(96, 125, 77, 0.08); }
   .stage-type.type-viewpoint{ color: var(--water); border-color: var(--water); background: rgba(79, 115, 120, 0.08); }
@@ -991,18 +1010,16 @@
   .bestpoints {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 0;
-    border-top: 1px solid var(--forest-ghost);
-    border-left: 1px solid var(--forest-ghost);
+    gap: 16px;
   }
   .bp {
     background: var(--sand);
-    border-right: 1px solid var(--forest-ghost);
-    border-bottom: 1px solid var(--forest-ghost);
+    border: 1px solid var(--forest-ghost);
     padding: 20px;
     display: flex;
     flex-direction: column;
     gap: 8px;
+    border-radius: var(--rad-sm);
   }
   .bp-top {
     display: flex;
@@ -1076,6 +1093,8 @@
     width: 100%;
     max-width: 720px;
     box-shadow: 8px 8px 0 rgba(31, 45, 28, 0.18);
+    border-radius: var(--rad-lg);
+    overflow: hidden;
   }
   .modal-head {
     padding: 18px 24px 16px;
@@ -1112,6 +1131,7 @@
     align-items: center;
     justify-content: center;
     transition: all 0.15s;
+    border-radius: var(--rad-sm);
   }
   .modal-close:hover { background: var(--forest); color: var(--bone); }
 
@@ -1153,9 +1173,9 @@
     font-size: 16px;
     color: var(--forest);
     padding: 10px 12px;
-    border-radius: 0;
     transition: border-color 0.15s, background 0.15s;
     font-variation-settings: "opsz" 14;
+    border-radius: var(--rad-sm);
   }
   .field textarea { font-size: 15px; line-height: 1.55; min-height: 90px; resize: vertical; font-family: var(--serif); }
   .field input:focus, .field textarea:focus, .field select:focus {
@@ -1202,6 +1222,7 @@
     background-size: cover;
     background-position: center;
     flex-shrink: 0;
+    border-radius: var(--rad-sm);
   }
   .image-preview.empty {
     display: flex;
@@ -1216,6 +1237,7 @@
     border: 1px solid var(--forest-ghost);
     padding: 12px;
     margin-top: 8px;
+    border-radius: var(--rad-md);
   }
   .sublist-empty {
     font-family: var(--serif);
@@ -1230,6 +1252,7 @@
     border: 1px solid var(--forest-ghost);
     padding: 14px;
     margin-bottom: 10px;
+    border-radius: var(--rad-sm);
   }
   .sub-item:last-child { margin-bottom: 0; }
   .sub-item-head {
@@ -1256,6 +1279,7 @@
     align-items: center;
     justify-content: center;
     transition: all 0.15s;
+    border-radius: var(--rad-sm);
   }
   .sub-item-remove:hover { background: var(--rust); border-color: var(--rust); color: var(--bone); }
 
@@ -1276,6 +1300,7 @@
     align-items: center;
     justify-content: center;
     gap: 8px;
+    border-radius: var(--rad-sm);
   }
   .sub-add:hover {
     background: var(--sand);
@@ -1303,6 +1328,7 @@
     display: inline-flex;
     align-items: center;
     gap: 6px;
+    border-radius: var(--rad-sm);
   }
   .type-opt:hover { background: var(--sand-light); }
   .type-opt.active { background: var(--forest); color: var(--bone); border-color: var(--forest); }
@@ -1427,6 +1453,7 @@
     display: inline-flex;
     align-items: center;
     gap: 10px;
+    border-radius: var(--rad-sm);
   }
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
@@ -1445,12 +1472,13 @@
     transform: rotate(-3deg);
     font-weight: 700;
     opacity: 0.88;
+    border-radius: var(--rad-sm);
   }
 
   /* SCROLLBAR */
   ::-webkit-scrollbar { width: 12px; height: 12px; }
   ::-webkit-scrollbar-track { background: var(--sand); }
-  ::-webkit-scrollbar-thumb { background: var(--forest-faint); border: 3px solid var(--sand); }
+  ::-webkit-scrollbar-thumb { background: var(--forest-faint); border: 3px solid var(--sand); border-radius: 10px; }
   ::-webkit-scrollbar-thumb:hover { background: var(--forest-soft); }
 
   /* ============================================
@@ -1463,6 +1491,7 @@
     border: 1px solid var(--forest);
     background: var(--sand-mid);
     overflow: hidden;
+    border-radius: var(--rad-md);
   }
   .map-wrap .leaflet-container {
     background: #e6dfc7;
@@ -1474,6 +1503,7 @@
     font-size: 9.5px;
     color: var(--forest-soft);
     padding: 3px 8px;
+    border-radius: var(--rad-sm);
   }
   .map-wrap .leaflet-control-attribution a { color: var(--clay); }
   .map-wrap .leaflet-control-zoom a {
@@ -1484,6 +1514,8 @@
     font-weight: 500;
     width: 32px; height: 32px;
     line-height: 30px;
+    border-radius: var(--rad-sm) !important;
+    margin-bottom: 4px;
   }
   .map-wrap .leaflet-control-zoom a:hover { background: var(--forest); color: var(--bone); }
 
@@ -1494,6 +1526,8 @@
     display: flex;
     background: var(--sand);
     border: 1px solid var(--forest);
+    border-radius: var(--rad-sm);
+    overflow: hidden;
   }
   .map-tile-btn {
     background: transparent;
@@ -1523,6 +1557,7 @@
     border: 1.5px dashed var(--forest-ghost);
     text-align: center;
     padding: 24px;
+    border-radius: var(--rad-md);
   }
   .map-empty-text {
     font-family: var(--serif);
@@ -1571,7 +1606,7 @@
     background: var(--sand);
     color: var(--forest);
     border: 1px solid var(--forest);
-    border-radius: 0;
+    border-radius: var(--rad-md);
     box-shadow: 4px 4px 0 rgba(31, 45, 28, 0.18);
   }
   .leaflet-popup-tip { background: var(--forest); }
@@ -1618,6 +1653,7 @@
     background: var(--sand-light);
     border: 1px solid var(--forest-ghost);
     flex-wrap: wrap;
+    border-radius: var(--rad-sm);
   }
   .toolbar-search {
     display: flex;
@@ -1638,6 +1674,7 @@
     outline: none;
     border-bottom: 1px solid transparent;
     transition: border-color 0.15s;
+    border-radius: 0;
   }
   .toolbar-search input::placeholder {
     color: var(--forest-faint);
@@ -1673,6 +1710,7 @@
     display: inline-flex;
     align-items: center;
     gap: 5px;
+    border-radius: var(--rad-sm);
   }
   .filter-chip:hover { background: var(--sand); }
   .filter-chip.active { background: var(--forest); color: var(--bone); border-color: var(--forest); }
@@ -1695,8 +1733,9 @@
     align-items: center;
     gap: 4px;
     padding: 4px 8px;
+    border-radius: var(--rad-sm);
   }
-  .toolbar-clear:hover { color: var(--rust); }
+  .toolbar-clear:hover { color: var(--rust); background: var(--sand); }
 
   .results-count {
     font-family: var(--mono);
@@ -1734,6 +1773,7 @@
     display: inline-flex;
     align-items: center;
     gap: 6px;
+    border-radius: var(--rad-sm) var(--rad-sm) 0 0;
   }
   .img-tab:hover { color: var(--forest); }
   .img-tab.active {
@@ -1755,6 +1795,7 @@
     flex-direction: column;
     align-items: center;
     gap: 10px;
+    border-radius: var(--rad-md);
   }
   .file-drop:hover, .file-drop.dragging {
     background: var(--sand);
@@ -1789,6 +1830,8 @@
     background-position: center;
     border: 1px solid var(--forest-ghost);
     position: relative;
+    border-radius: var(--rad-md);
+    overflow: hidden;
   }
   .file-preview-large.empty {
     display: flex;
@@ -1806,6 +1849,7 @@
     font-size: 9px;
     letter-spacing: 0.12em;
     text-transform: uppercase;
+    border-radius: var(--rad-sm);
   }
 
   /* ============================================
@@ -1844,6 +1888,8 @@
     background: var(--forest-ghost);
     border: 1px solid var(--forest-ghost);
     margin-bottom: 14px;
+    border-radius: var(--rad-md);
+    overflow: hidden;
   }
   .settings-stat {
     background: var(--sand);
@@ -1876,6 +1922,7 @@
     align-items: center;
     justify-content: center;
     transition: all 0.15s;
+    border-radius: var(--rad-sm);
   }
   .frame-settings-btn:hover {
     background: var(--forest);
@@ -1900,6 +1947,7 @@
     background: transparent;
     cursor: pointer;
     transition: all 0.15s;
+    border-radius: var(--rad-sm);
   }
   .sync-badge:hover { background: var(--sand-light); border-color: var(--forest); color: var(--forest); }
   .sync-badge.synced { color: var(--moss); border-color: var(--moss); background: rgba(96, 125, 77, 0.08); }
@@ -1927,6 +1975,7 @@
     background: var(--sand);
     border: 1px solid var(--forest-ghost);
     margin-bottom: 14px;
+    border-radius: var(--rad-md);
   }
   .auth-avatar {
     width: 44px; height: 44px;
@@ -1975,7 +2024,7 @@
     align-items: center;
     gap: 10px;
     transition: all 0.15s;
-    border-radius: 2px;
+    border-radius: var(--rad-sm);
   }
   .btn-google:hover { background: var(--forest); color: var(--bone); }
   .btn-google .g-icon {
@@ -1986,167 +2035,40 @@
 </head>
 <body>
 
-<!-- HEADER -->
 <header class="frame">
   <div class="frame-inner">
-    <div class="brand" onclick="goto(&#39;home&#39;)">
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="mountain-snow" aria-hidden="true" class="lucide lucide-mountain-snow brand-icon"><path d="m8 3 4 8 5-5 5 15H2L8 3z"></path><path d="M4.14 15.08c2.62-1.57 5.24-1.43 7.86.42 2.74 1.94 5.49 2 8.23.19"></path></svg>
+    <div class="brand" onclick="goto('home')">
+      <i data-lucide="mountain-snow" class="brand-icon"></i>
       <div class="brand-text">
         <span class="brand-mark">Bivacco<span class="dot">·</span>70</span>
         <span class="brand-sub">Quaderno di Campo</span>
       </div>
     </div>
     <nav class="nav" id="nav">
-      <button class="nav-link active" data-route="home"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="layout-grid" aria-hidden="true" class="lucide lucide-layout-grid icon-xs"><rect width="7" height="7" x="3" y="3" rx="1"></rect><rect width="7" height="7" x="14" y="3" rx="1"></rect><rect width="7" height="7" x="14" y="14" rx="1"></rect><rect width="7" height="7" x="3" y="14" rx="1"></rect></svg> Indice</button>
-      <button class="nav-link" data-route="itinerari"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="route" aria-hidden="true" class="lucide lucide-route icon-xs"><circle cx="6" cy="19" r="3"></circle><path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15"></path><circle cx="18" cy="5" r="3"></circle></svg> Itinerari</button>
-      <button class="nav-link" data-route="punti"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="map-pin" aria-hidden="true" class="lucide lucide-map-pin icon-xs"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"></path><circle cx="12" cy="10" r="3"></circle></svg> Punti</button>
+      <button class="nav-link" data-route="home"><i data-lucide="layout-grid" class="icon-xs"></i> Indice</button>
+      <button class="nav-link" data-route="itinerari"><i data-lucide="route" class="icon-xs"></i> Itinerari</button>
+      <button class="nav-link" data-route="punti"><i data-lucide="map-pin" class="icon-xs"></i> Punti</button>
     </nav>
     <div class="frame-meta">
-      <span class="frame-meta-item"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="compass" aria-hidden="true" class="lucide lucide-compass icon-xs"><circle cx="12" cy="12" r="10"></circle><path d="m16.24 7.76-1.804 5.411a2 2 0 0 1-1.265 1.265L7.76 16.24l1.804-5.411a2 2 0 0 1 1.265-1.265z"></path></svg> <span>ROTTA · APERTA</span></span>
-      <span class="frame-meta-item" id="meta-date"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="calendar-days" aria-hidden="true" class="lucide lucide-calendar-days icon-xs"><path d="M8 2v4"></path><path d="M16 2v4"></path><rect width="18" height="18" x="3" y="4" rx="2"></rect><path d="M3 10h18"></path><path d="M8 14h.01"></path><path d="M12 14h.01"></path><path d="M16 14h.01"></path><path d="M8 18h.01"></path><path d="M12 18h.01"></path><path d="M16 18h.01"></path></svg> 11 mag 2026</span>
+      <span class="frame-meta-item"><i data-lucide="compass" class="icon-xs"></i> <span>ROTTA · APERTA</span></span>
+      <span class="frame-meta-item" id="meta-date"></span>
       <button class="sync-badge" id="sync-badge" style="display:none;" onclick="openSettingsModal()">
         <span class="dot"></span><span>...</span>
       </button>
       <button class="frame-settings-btn" onclick="openSettingsModal()" title="Quaderno · Impostazioni">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="notebook-tabs" aria-hidden="true" class="lucide lucide-notebook-tabs icon-sm"><path d="M2 6h4"></path><path d="M2 10h4"></path><path d="M2 14h4"></path><path d="M2 18h4"></path><rect width="16" height="20" x="4" y="2" rx="2"></rect><path d="M15 2v20"></path><path d="M15 7h5"></path><path d="M15 12h5"></path><path d="M15 17h5"></path></svg>
+        <i data-lucide="notebook-tabs" class="icon-sm"></i>
       </button>
     </div>
   </div>
 </header>
 
-<main id="app">
-    <div class="contour-bg"></div>
-    <section class="hero">
-      <div>
-        <div class="hero-eyebrow"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="leaf" aria-hidden="true" class="lucide lucide-leaf icon-xs"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"></path><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"></path></svg> Edizione 2026 · In esercizio</div>
-        <h1 class="hero-title">Un quaderno per<br>chi viaggia <em>lontano,<br>verso il selvatico.</em></h1>
-        <p class="hero-desc">Itinerari in tenda da tetto, punti di riferimento e i loro <em>best points</em>. Strade lente, mappe pieghevoli, notti sotto un cielo che non si conosce. Tutto annotato.</p>
-      </div>
-      <div class="hero-side">
-        <div class="hero-image-wrap">
-          
-            <img src="./BIVACCO·70 — Quaderno di Campo_files/photo-1508792332648-1e365e96da8a" alt="Hero" onerror="this.style.display=&#39;none&#39;;this.nextElementSibling.style.display=&#39;flex&#39;;">
-            <div class="hero-image-placeholder" style="display:none;">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="image-off" aria-hidden="true" class="lucide lucide-image-off icon-lg"><line x1="2" x2="22" y1="2" y2="22"></line><path d="M10.41 10.41a2 2 0 1 1-2.83-2.83"></path><line x1="13.5" x2="6" y1="13.5" y2="21"></line><line x1="18" x2="21" y1="12" y2="15"></line><path d="M3.59 3.59A1.99 1.99 0 0 0 3 5v14a2 2 0 0 0 2 2h14c.55 0 1.052-.22 1.41-.59"></path><path d="M21 15V5a2 2 0 0 0-2-2H9"></path></svg>
-              <span class="ph-label">Immagine non disponibile</span>
-            </div>
-          
-          <button class="hero-image-btn" onclick="openHeroImageModal()">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="image" aria-hidden="true" class="lucide lucide-image icon-xs"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"></rect><circle cx="9" cy="9" r="2"></circle><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"></path></svg>
-            <span>Cambia</span>
-          </button>
-        </div>
-        <div class="hero-stats">
-          <div class="stat">
-            <div class="stat-label"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="route" aria-hidden="true" class="lucide lucide-route icon-xs"><circle cx="6" cy="19" r="3"></circle><path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15"></path><circle cx="18" cy="5" r="3"></circle></svg> Itinerari</div>
-            <div class="stat-value">10</div>
-          </div>
-          <div class="stat">
-            <div class="stat-label"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="map-pin" aria-hidden="true" class="lucide lucide-map-pin icon-xs"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"></path><circle cx="12" cy="10" r="3"></circle></svg> Tappe</div>
-            <div class="stat-value">38</div>
-          </div>
-          <div class="stat">
-            <div class="stat-label"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="ruler" aria-hidden="true" class="lucide lucide-ruler icon-xs"><path d="M21.3 15.3a2.4 2.4 0 0 1 0 3.4l-2.6 2.6a2.4 2.4 0 0 1-3.4 0L2.7 8.7a2.41 2.41 0 0 1 0-3.4l2.6-2.6a2.41 2.41 0 0 1 3.4 0Z"></path><path d="m14.5 12.5 2-2"></path><path d="m11.5 9.5 2-2"></path><path d="m8.5 6.5 2-2"></path><path d="m17.5 15.5 2-2"></path></svg> Distanza</div>
-            <div class="stat-value">32.418<span class="unit">km</span></div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <div class="dash-split">
-      <div class="dash-section">
-        <div class="section-head">
-          <div class="section-title">
-            <span class="section-num">01 ·</span>
-            <span class="section-name">Itinerari Recenti</span>
-          </div>
-          <span class="section-meta link" onclick="goto(&#39;itinerari&#39;)">Vedi Tutti <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="arrow-right" aria-hidden="true" class="lucide lucide-arrow-right icon-xs"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></span>
-        </div>
-        <div class="dash-list">
-    <div class="dash-row" onclick="goto(&#39;itinerary&#39;, &#39;mozq41kkxtmsm&#39;)">
-      <div class="dash-row-code">PRJ-03</div>
-      <div class="dash-row-mid">
-        <div class="dash-row-title">Inghilterra &amp; Cinema</div>
-        <div class="dash-row-region"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="map-pin" aria-hidden="true" class="lucide lucide-map-pin icon-xs"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"></path><circle cx="12" cy="10" r="3"></circle></svg> UK / Europa</div>
-      </div>
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="arrow-right" aria-hidden="true" class="lucide lucide-arrow-right dash-row-arrow icon-md"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
-    </div>
-  
-    <div class="dash-row" onclick="goto(&#39;itinerary&#39;, &#39;mozq41kkxkaog&#39;)">
-      <div class="dash-row-code">PRJ-04</div>
-      <div class="dash-row-mid">
-        <div class="dash-row-title">Progetto Norvegia</div>
-        <div class="dash-row-region"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="map-pin" aria-hidden="true" class="lucide lucide-map-pin icon-xs"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"></path><circle cx="12" cy="10" r="3"></circle></svg> Norvegia</div>
-      </div>
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="arrow-right" aria-hidden="true" class="lucide lucide-arrow-right dash-row-arrow icon-md"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
-    </div>
-  
-    <div class="dash-row" onclick="goto(&#39;itinerary&#39;, &#39;mozq41kkeuwg4&#39;)">
-      <div class="dash-row-code">PRJ-05</div>
-      <div class="dash-row-mid">
-        <div class="dash-row-title">Polonia - Bisonti &amp; Foreste</div>
-        <div class="dash-row-region"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="map-pin" aria-hidden="true" class="lucide lucide-map-pin icon-xs"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"></path><circle cx="12" cy="10" r="3"></circle></svg> Polonia</div>
-      </div>
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="arrow-right" aria-hidden="true" class="lucide lucide-arrow-right dash-row-arrow icon-md"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
-    </div>
-  
-    <div class="dash-row" onclick="goto(&#39;itinerary&#39;, &#39;mozq41kktgdc5&#39;)">
-      <div class="dash-row-code">PRJ-06</div>
-      <div class="dash-row-mid">
-        <div class="dash-row-title">Progetto Sardegna</div>
-        <div class="dash-row-region"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="map-pin" aria-hidden="true" class="lucide lucide-map-pin icon-xs"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"></path><circle cx="12" cy="10" r="3"></circle></svg> Sardegna</div>
-      </div>
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="arrow-right" aria-hidden="true" class="lucide lucide-arrow-right dash-row-arrow icon-md"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
-    </div>
-  
-    <div class="dash-row" onclick="goto(&#39;itinerary&#39;, &#39;mozq41kk5o2mp&#39;)">
-      <div class="dash-row-code">PRJ-07</div>
-      <div class="dash-row-mid">
-        <div class="dash-row-title">Progetto Scozia</div>
-        <div class="dash-row-region"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="map-pin" aria-hidden="true" class="lucide lucide-map-pin icon-xs"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"></path><circle cx="12" cy="10" r="3"></circle></svg> Scozia</div>
-      </div>
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="arrow-right" aria-hidden="true" class="lucide lucide-arrow-right dash-row-arrow icon-md"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
-    </div>
-  </div>
-             <div style="margin-top: 20px;"><button class="btn btn-primary" onclick="openItineraryModal()"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="plus" aria-hidden="true" class="lucide lucide-plus icon-sm"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg> Nuovo Itinerario</button></div>
-      </div>
-
-      <div class="dash-section">
-        <div class="section-head">
-          <div class="section-title">
-            <span class="section-num">02 ·</span>
-            <span class="section-name">Punti di Riferimento</span>
-          </div>
-          <span class="section-meta link" onclick="goto(&#39;punti&#39;)">Vedi Tutti <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="arrow-right" aria-hidden="true" class="lucide lucide-arrow-right icon-xs"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></span>
-        </div>
-        <div class="dash-list">
-    <div class="dash-row" onclick="goto(&#39;point&#39;, &#39;mp05e4em4ag66&#39;)">
-      <div class="dash-row-code">PR-01</div>
-      <div class="dash-row-mid">
-        <div class="dash-row-title">Casa</div>
-        <div class="dash-row-region"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="map-pin" aria-hidden="true" class="lucide lucide-map-pin icon-xs"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"></path><circle cx="12" cy="10" r="3"></circle></svg> Trentino</div>
-      </div>
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="arrow-right" aria-hidden="true" class="lucide lucide-arrow-right dash-row-arrow icon-md"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
-    </div>
-  </div>
-             <div style="margin-top: 20px;"><button class="btn btn-primary" onclick="openPointModal()"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="plus" aria-hidden="true" class="lucide lucide-plus icon-sm"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg> Nuovo Punto</button></div>
-      </div>
-    </div>
-
-    
-    <footer>
-      <div class="left"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="mountain-snow" aria-hidden="true" class="lucide lucide-mountain-snow icon-sm"><path d="m8 3 4 8 5-5 5 15H2L8 3z"></path><path d="M4.14 15.08c2.62-1.57 5.24-1.43 7.86.42 2.74 1.94 5.49 2 8.23.19"></path></svg> BIVACCO·70 · v2.0</div>
-      <div class="center">«Mai sotto un cielo che non si conosce.»</div>
-      <div class="right">Ult. edit 10 MAG 2026</div>
-    </footer>
-  
-  </main>
+<main id="app"></main>
 
 <div class="modal-back" id="modal-back">
   <div class="modal" id="modal"></div>
 </div>
 
-<div class="toast" id="toast"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="check" aria-hidden="true" class="lucide lucide-check icon-sm"><path d="M20 6 9 17l-5-5"></path></svg><span id="toast-msg">Salvato</span></div>
+<div class="toast" id="toast"><i data-lucide="check" class="icon-sm"></i><span id="toast-msg">Salvato</span></div>
 
 <script>
 /* ===========================================================
@@ -2169,10 +2091,10 @@ const state = {
   currentTile: 'topo',
   // CLOUD state
   cloud: {
-    enabled: false,        // Firebase è configurato?
-    user: null,            // utente loggato (null = anonimo/locale)
-    syncStatus: 'idle',    // 'idle' | 'syncing' | 'synced' | 'error' | 'offline'
-    unsubscribe: null      // funzione per disattivare listener Firestore
+    enabled: false,        
+    user: null,            
+    syncStatus: 'idle',    
+    unsubscribe: null      
   }
 };
 
@@ -2206,13 +2128,8 @@ const STATUS_LABELS = {
   active: 'In Corso'
 };
 
-/* PERSISTENCE — funziona in 3 modi:
-   1. Logged in + Firebase configurato → Firestore (cloud, sincronizzato)
-   2. Firebase configurato ma non loggato → localStorage (locale)
-   3. Firebase non configurato → localStorage (compatibilità con v3) */
-
+/* PERSISTENCE */
 async function loadAll() {
-  // Carichiamo SEMPRE dalla fonte appropriata. La logica cloud è attivata da onAuth.
   try {
     const itinR = await safeGet(STORAGE_KEYS.itineraries);
     state.itineraries = itinR ? JSON.parse(itinR.value) : [];
@@ -2247,7 +2164,8 @@ async function cloudSaveAll() {
   const fb = window.__firebase;
   setSyncStatus('syncing');
   try {
-    const ref = fb.doc(fb.db, 'users', state.cloud.user.uid);
+    // ⚠️ MODIFICA: Salviamo su public_data/shared_base invece che su users/uid
+    const ref = fb.doc(fb.db, 'public_data', 'shared_base');
     await fb.setDoc(ref, {
       itineraries: state.itineraries,
       points: state.points,
@@ -2336,7 +2254,6 @@ function initFirebaseAuth() {
       setSyncStatus('idle');
     }
     updateSyncBadge();
-    // ri-renderizza il pannello settings se aperto
     if (document.getElementById('modal-back').classList.contains('open')) {
       const titleEl = document.querySelector('.modal-title');
       if (titleEl && titleEl.textContent.includes('Impostazioni')) openSettingsModal();
@@ -2350,27 +2267,23 @@ async function attachCloudListener() {
   detachCloudListener();
   setSyncStatus('syncing');
 
-  const ref = fb.doc(fb.db, 'users', state.cloud.user.uid);
+  // ⚠️ MODIFICA: Ascoltiamo da public_data/shared_base
+  const ref = fb.doc(fb.db, 'public_data', 'shared_base');
 
-  // Primo caricamento: prendi i dati cloud se esistono
   try {
     const snap = await fb.getDoc(ref);
     if (snap.exists()) {
-      // Cloud ha dati: chiedi se l'utente vuole sostituire i dati locali con quelli cloud
-      // (auto-merge: usiamo i dati cloud come fonte di verità)
       const cloudData = snap.data();
       if (Array.isArray(cloudData.itineraries)) state.itineraries = cloudData.itineraries;
       if (Array.isArray(cloudData.points)) state.points = cloudData.points;
       if (cloudData.meta) state.meta = { ...state.meta, ...cloudData.meta };
-      // Salva anche in locale come backup
       await safeSet(STORAGE_KEYS.itineraries, state.itineraries);
       await safeSet(STORAGE_KEYS.points, state.points);
       await safeSet(STORAGE_KEYS.meta, state.meta);
       setSyncStatus('synced');
       render();
     } else {
-      // Cloud è vuoto: carica i dati locali nel cloud (primo login)
-      console.log('Cloud vuoto, migro i dati locali');
+      console.log('Cloud vuoto, migro i dati locali nel DB pubblico');
       await cloudSaveAll();
     }
   } catch (e) {
@@ -2378,11 +2291,9 @@ async function attachCloudListener() {
     setSyncStatus('error');
   }
 
-  // Real-time listener: aggiornamenti da altri dispositivi
   state.cloud.unsubscribe = fb.onSnapshot(ref, (snap) => {
     if (!snap.exists()) return;
     const data = snap.data();
-    // Aggiorna solo se i dati sono diversi (evita loop con i nostri save)
     const newItinJson = JSON.stringify(data.itineraries || []);
     const currItinJson = JSON.stringify(state.itineraries);
     const newPtsJson = JSON.stringify(data.points || []);
@@ -2392,7 +2303,6 @@ async function attachCloudListener() {
       if (Array.isArray(data.itineraries)) state.itineraries = data.itineraries;
       if (Array.isArray(data.points)) state.points = data.points;
       if (data.meta) state.meta = { ...state.meta, ...data.meta };
-      // Aggiorna localStorage come cache
       safeSet(STORAGE_KEYS.itineraries, state.itineraries);
       safeSet(STORAGE_KEYS.points, state.points);
       safeSet(STORAGE_KEYS.meta, state.meta);
@@ -2491,7 +2401,6 @@ function toneForType(typeId) {
   return map[typeId] || 'moss';
 }
 
-/* render lucide icons after each render call */
 function refreshIcons() {
   requestAnimationFrame(() => {
     if (window.lucide && typeof window.lucide.createIcons === 'function') {
@@ -2500,39 +2409,25 @@ function refreshIcons() {
   });
 }
 
-/* ===========================================================
-   COORDINATE PARSER — gestisce vari formati
-   "46°41'N · 12°05'E"  /  "46°41'24\"N 12°05'00\"E"  /  "46.6824, 12.0833"
-=========================================================== */
 function parseCoords(str) {
   if (!str || typeof str !== 'string') return null;
   const s = str.trim();
-
-  // Decimal: "46.6824, 12.0833" (anche con spazio o punto e virgola)
   const dec = s.match(/^\s*(-?\d+(?:\.\d+)?)\s*[,;\s]+\s*(-?\d+(?:\.\d+)?)\s*$/);
   if (dec) {
     const lat = parseFloat(dec[1]), lng = parseFloat(dec[2]);
     if (Math.abs(lat) <= 90 && Math.abs(lng) <= 180) return [lat, lng];
   }
-
-  // DMS: "46°41'24"N · 12°05'00"E" / "46°41'N 12°05'E" / con vari simboli
-  // Usa unicode escapes safe per stringhe HTML
   const re = /(\d+(?:\.\d+)?)\s*[\u00B0]\s*(?:(\d+(?:\.\d+)?)\s*[\u2032'\u0027]?\s*)?(?:(\d+(?:\.\d+)?)\s*[\u2033"\u0022]?\s*)?([NS])\s*[\s\u00B7,;]+\s*(\d+(?:\.\d+)?)\s*[\u00B0]\s*(?:(\d+(?:\.\d+)?)\s*[\u2032'\u0027]?\s*)?(?:(\d+(?:\.\d+)?)\s*[\u2033"\u0022]?\s*)?([EW])/i;
   const m = s.match(re);
   if (!m) return null;
-
   const latDeg = parseFloat(m[1]), latMin = parseFloat(m[2] || 0), latSec = parseFloat(m[3] || 0);
   const lngDeg = parseFloat(m[5]), lngMin = parseFloat(m[6] || 0), lngSec = parseFloat(m[7] || 0);
   const lat = (latDeg + latMin/60 + latSec/3600) * (m[4].toUpperCase() === 'S' ? -1 : 1);
   const lng = (lngDeg + lngMin/60 + lngSec/3600) * (m[8].toUpperCase() === 'W' ? -1 : 1);
-
   if (isNaN(lat) || isNaN(lng) || Math.abs(lat) > 90 || Math.abs(lng) > 180) return null;
   return [lat, lng];
 }
 
-/* ===========================================================
-   IMAGE UPLOAD — file → compressed data URL
-=========================================================== */
 function compressImage(file, maxDim = 1600, quality = 0.82) {
   return new Promise((resolve, reject) => {
     if (!file.type.startsWith('image/')) { reject(new Error('Non è un\'immagine')); return; }
@@ -2552,7 +2447,6 @@ function compressImage(file, maxDim = 1600, quality = 0.82) {
         canvas.width = width; canvas.height = height;
         const ctx = canvas.getContext('2d');
         ctx.drawImage(img, 0, 0, width, height);
-        // PNG troppo grande: forziamo JPEG salvo per immagini con alpha
         const isPNG = file.type === 'image/png';
         const out = canvas.toDataURL(isPNG ? 'image/jpeg' : 'image/jpeg', quality);
         resolve({
@@ -2574,9 +2468,6 @@ function fmtBytes(n) {
   return (n / 1024 / 1024).toFixed(2) + ' MB';
 }
 
-/* ===========================================================
-   EXPORT / IMPORT
-=========================================================== */
 function exportData() {
   const payload = {
     version: 2,
@@ -2618,7 +2509,7 @@ function triggerImport(mode) {
         state.itineraries = data.itineraries;
         state.points = data.points;
         if (data.meta) state.meta = { ...state.meta, ...data.meta };
-      } else { // merge
+      } else { 
         const existingItinIds = new Set(state.itineraries.map(x => x.id));
         const existingPtIds = new Set(state.points.map(x => x.id));
         data.itineraries.forEach(it => { if (!existingItinIds.has(it.id)) state.itineraries.unshift(it); });
@@ -2640,19 +2531,21 @@ function triggerImport(mode) {
 /* ===========================================================
    MAP RENDERING (Leaflet)
 =========================================================== */
+
+// ⚠️ MODIFICA: Layer aggiornati ad Esri
 const TILE_LAYERS = {
   topo: {
-    url: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
+    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',
     options: {
-      maxZoom: 17,
-      attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (CC-BY-SA)'
+      maxZoom: 19,
+      attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ, TomTom, Intermap, iPC, USGS, FAO, NPS, NRCAN, GeoBase, Kadaster NL, Ordnance Survey, Esri Japan, METI, Esri China (Hong Kong), and the GIS User Community'
     }
   },
   street: {
-    url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
     options: {
       maxZoom: 19,
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+      attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
     }
   }
 };
@@ -2666,7 +2559,7 @@ function destroyMap(containerId) {
 }
 
 function renderMap(containerId, markers, opts = {}) {
-  if (typeof L === 'undefined') return; // Leaflet non caricato
+  if (typeof L === 'undefined') return; 
   const el = document.getElementById(containerId);
   if (!el) return;
 
@@ -2685,18 +2578,15 @@ function renderMap(containerId, markers, opts = {}) {
     return;
   }
 
-  // costruisci mappa
   const map = L.map(containerId, {
     zoomControl: true,
     attributionControl: true,
-    scrollWheelZoom: false  // più gentile, l'utente clicca per attivare
+    scrollWheelZoom: false  
   });
 
-  // doubleclick per attivare scroll zoom
   map.on('click', () => map.scrollWheelZoom.enable());
   map.on('mouseout', () => map.scrollWheelZoom.disable());
 
-  // layers
   const tileTopo = L.tileLayer(TILE_LAYERS.topo.url, TILE_LAYERS.topo.options);
   const tileStreet = L.tileLayer(TILE_LAYERS.street.url, TILE_LAYERS.street.options);
   const layers = { topo: tileTopo, street: tileStreet };
@@ -2706,7 +2596,6 @@ function renderMap(containerId, markers, opts = {}) {
   state.mapInstances[containerId]._layers = layers;
   state.mapInstances[containerId]._activeTile = state.currentTile;
 
-  // markers
   const latLngs = [];
   validMarkers.forEach((m, i) => {
     const tone = m.type ? toneForType(m.type) : 'moss';
@@ -2723,7 +2612,6 @@ function renderMap(containerId, markers, opts = {}) {
     latLngs.push(m.coords);
   });
 
-  // polyline (solo per itinerari, non per punti singoli)
   if (validMarkers.length > 1 && opts.connectStops) {
     L.polyline(latLngs, {
       color: '#1f2d1c',
@@ -2733,7 +2621,6 @@ function renderMap(containerId, markers, opts = {}) {
     }).addTo(map);
   }
 
-  // fit bounds
   if (latLngs.length === 1) {
     map.setView(latLngs[0], 11);
   } else {
@@ -2750,7 +2637,6 @@ function switchTile(containerId, tileName) {
   map._layers[tileName].addTo(map);
   map._activeTile = tileName;
   state.currentTile = tileName;
-  // update active button state
   document.querySelectorAll(`[data-map-tile="${containerId}"]`).forEach(b => {
     b.classList.toggle('active', b.dataset.tile === tileName);
   });
@@ -2774,7 +2660,7 @@ function parseHash() {
 window.addEventListener('hashchange', () => { state.route = parseHash(); render(); });
 
 /* ===========================================================
-   SEED DATA — preservo i tuoi 10 progetti
+   SEED DATA
 =========================================================== */
 function seedDataIfEmpty() {
   if (state.itineraries.length > 0 || state.points.length > 0) return false;
@@ -2787,115 +2673,7 @@ function seedDataIfEmpty() {
       coverImage: '', dateAdded: new Date(Date.now() - 86400000 * 90).toISOString(),
       stops: [
         { id: uid(), day: 1, name: 'Volo & Villaggio Babbo Natale', coords: '66°32\'N · 25°50\'E', type: 'activity', notes: 'Volo BRG-RVN e incontro con Babbo Natale.' },
-        { id: uid(), day: 2, name: 'Parco Riisitunturi', coords: '66°10\'N · 28°00\'E', type: 'trail', notes: 'Giornata intera nel parco, pranzo compreso.' },
-        { id: uid(), day: 3, name: 'Korouoma Canyon', coords: '66°20\'N · 27°20\'E', type: 'viewpoint', notes: 'Cascata congelata + BBQ. Cena di Capodanno la sera.' },
-        { id: uid(), day: 4, name: 'Treno per Helsinki', coords: '60°10\'N · 24°56\'E', type: 'town', notes: 'Notte in cabina con letti in treno verso Helsinki.' }
-      ]
-    },
-    {
-      id: uid(), code: 'PRJ-02', title: 'Road Trip Francia Breve', region: 'Francia', status: 'active',
-      distance: '1760 km', duration: '5 giorni', season: 'Ponte 2 Giugno', terrain: 'Asfalto',
-      description: 'Ponte veloce verso la Francia. Gole del Verdon, Camargue e Costa Azzurra in tenda da tetto.',
-      coverImage: '', dateAdded: new Date(Date.now() - 86400000 * 30).toISOString(),
-      stops: [
-        { id: uid(), day: 1, name: 'Borgo Valsugana → Monaco', coords: '43°44\'N · 7°25\'E', type: 'camp', notes: 'Prima notte in tenda da tetto in Riviera.' },
-        { id: uid(), day: 2, name: 'Monaco → Gorges du Verdon', coords: '43°45\'N · 6°22\'E', type: 'viewpoint', notes: 'Point Sublime, Lac de Sainte-Croix.' },
-        { id: uid(), day: 3, name: 'Gorges du Verdon → Camargue', coords: '43°34\'N · 4°34\'E', type: 'activity', notes: 'Kayak o Sentier Martel. Bivacco nelle paludi della Camargue.' },
-        { id: uid(), day: 4, name: 'Camargue → Ventimiglia', coords: '43°47\'N · 7°36\'E', type: 'town', notes: 'Parc Ornithologique (fenicotteri). Ultima notte in tenda.' }
-      ]
-    },
-    {
-      id: uid(), code: 'PRJ-03', title: 'Inghilterra & Cinema', region: 'UK / Europa', status: 'draft',
-      distance: '3572 km', duration: '15 giorni', season: 'Estate', terrain: 'Misto',
-      description: 'Odissea di Nolan in IMAX 70mm a Londra, Stonehenge e i parchi nazionali inglesi.',
-      coverImage: '', dateAdded: new Date(Date.now() - 86400000 * 25).toISOString(),
-      stops: [
-        { id: uid(), day: 1, name: 'Borgo → Stoccarda', coords: '48°46\'N · 9°10\'E', type: 'town', notes: 'Viaggio con notte nella Foresta Nera.' },
-        { id: uid(), day: 2, name: 'Lussemburgo → Calais', coords: '50°57\'N · 1°51\'E', type: 'viewpoint', notes: 'Passaggio veloce in Lussemburgo verso la Manica.' },
-        { id: uid(), day: 4, name: 'Calais → Londra', coords: '51°30\'N · 0°07\'W', type: 'activity', notes: 'Traghetto/Treno. Tè da Pooh e arrivo a Londra.' },
-        { id: uid(), day: 5, name: 'Londra (IMAX)', coords: '51°30\'N · 0°07\'W', type: 'town', notes: 'Film Odissea di Nolan IMAX 70mm e discoteca Abba Voyage.' },
-        { id: uid(), day: 7, name: 'Stonehenge → Dartmoor', coords: '50°34\'N · 3°54\'W', type: 'viewpoint', notes: 'Verso la foresta oscura degli Ent.' }
-      ]
-    },
-    {
-      id: uid(), code: 'PRJ-04', title: 'Progetto Norvegia', region: 'Norvegia', status: 'draft',
-      distance: '3971 km', duration: '15 giorni', season: 'Estate', terrain: 'Montagna / Fiordi',
-      description: 'La grande risalita del Nord. Da Borgo fino a Trondheim passando per la Strada Sull\'Atlantico.',
-      coverImage: '', dateAdded: new Date(Date.now() - 86400000 * 20).toISOString(),
-      stops: [
-        { id: uid(), day: 4, name: 'Kiel → Oslo', coords: '59°54\'N · 10°45\'E', type: 'activity', notes: 'Traghetto notturno in cabina (20h).' },
-        { id: uid(), day: 5, name: 'Oslo', coords: '59°54\'N · 10°45\'E', type: 'town', notes: 'Giornata dedicata alla capitale.' },
-        { id: uid(), day: 7, name: 'Lillehammer → Geiranger', coords: '62°06\'N · 7°12\'E', type: 'viewpoint', notes: 'Ingresso nel cuore dei fiordi.' },
-        { id: uid(), day: 8, name: 'Geiranger → Averoy', coords: '63°02\'N · 7°35\'E', type: 'trail', notes: 'La famigerata Strada Sull\'Atlantico.' }
-      ]
-    },
-    {
-      id: uid(), code: 'PRJ-05', title: 'Polonia · Bisonti & Foreste', region: 'Polonia', status: 'draft',
-      distance: '3345 km', duration: '8 giorni', season: 'Autunno', terrain: 'Pianura · Foresta',
-      description: 'A caccia di bisonti nella foresta più selvaggia d\'Europa (Białowieża) e visita a Cracovia.',
-      coverImage: '', dateAdded: new Date(Date.now() - 86400000 * 18).toISOString(),
-      stops: [
-        { id: uid(), day: 1, name: 'Borgo → Salisburgo', coords: '47°48\'N · 13°03\'E', type: 'town', notes: 'Tappa di avvicinamento in Austria.' },
-        { id: uid(), day: 2, name: 'Salisburgo → Brno', coords: '49°11\'N · 16°36\'E', type: 'town', notes: 'Ingresso in Czechia, notte a Brno.' },
-        { id: uid(), day: 4, name: 'Katowice → Białowieża', coords: '52°41\'N · 23°51\'E', type: 'camp', notes: 'Viaggio lungo verso la foresta. Accampamento.' },
-        { id: uid(), day: 5, name: 'Foresta di Białowieża', coords: '52°44\'N · 23°54\'E', type: 'trail', notes: 'Giornata a piedi a caccia (fotografica) di Bisonti.' },
-        { id: uid(), day: 7, name: 'Cracovia', coords: '50°03\'N · 19°56\'E', type: 'town', notes: 'Mercati, storia e cultura polacca.' }
-      ]
-    },
-    {
-      id: uid(), code: 'PRJ-06', title: 'Progetto Sardegna', region: 'Sardegna', status: 'draft',
-      distance: '1785 km', duration: '15 giorni', season: 'Estate', terrain: 'Costiero',
-      description: 'Traghetto da Livorno per Olbia e tour dell\'isola tra mare cristallino e interno selvaggio.',
-      coverImage: '', dateAdded: new Date(Date.now() - 86400000 * 15).toISOString(),
-      stops: [
-        { id: uid(), day: 1, name: 'Borgo → Livorno', coords: '43°33\'N · 10°19\'E', type: 'town', notes: 'Discesa verso il porto.' },
-        { id: uid(), day: 2, name: 'Livorno → Olbia', coords: '40°55\'N · 9°30\'E', type: 'activity', notes: 'Traghetto notturno in cabina.' },
-        { id: uid(), day: 12, name: 'Olbia → Livorno', coords: '43°33\'N · 10°19\'E', type: 'activity', notes: 'Traghetto di rientro.' }
-      ]
-    },
-    {
-      id: uid(), code: 'PRJ-07', title: 'Progetto Scozia', region: 'Scozia', status: 'filed',
-      distance: '6920 km', duration: '15 giorni', season: 'Estate', terrain: 'Brughiera · Asfalto',
-      description: 'Castelli, natura, magia. Da Borgo a Kilchurn e ritorno tramite traghetto da Amsterdam.',
-      coverImage: '', dateAdded: new Date(Date.now() - 86400000 * 10).toISOString(),
-      stops: [
-        { id: uid(), day: 2, name: 'Stoccarda → Colonia', coords: '50°56\'N · 6°57\'E', type: 'town', notes: 'Risalita lungo il Reno, tratte panoramiche.' },
-        { id: uid(), day: 4, name: 'Amsterdam → Newcastle', coords: '54°58\'N · 1°36\'W', type: 'activity', notes: 'Traghetto notturno DFDS nel Mare del Nord.' },
-        { id: uid(), day: 15, name: 'Stoccarda → Borgo', coords: '46°03\'N · 11°27\'E', type: 'town', notes: 'Rientro dopo 15 giorni epici tra lochs e brughiere.' }
-      ]
-    },
-    {
-      id: uid(), code: 'PRJ-08', title: 'Spagna · Eclissi Solare', region: 'Spagna', status: 'active',
-      distance: '3580 km', duration: '15 giorni', season: 'Agosto 2026', terrain: 'Deserto · Entroterra',
-      description: 'L\'obiettivo finale: assistere all\'Eclissi Solare Totale nel cuore della Spagna.',
-      coverImage: '', dateAdded: new Date(Date.now() - 86400000 * 7).toISOString(),
-      stops: [
-        { id: uid(), day: 1, name: 'Borgo → Tolone', coords: '43°07\'N · 5°55\'E', type: 'camp', notes: 'Notte lungo la Costa Azzurra. Bagno e pesce.' },
-        { id: uid(), day: 3, name: 'Andorra → Désert de Monegros', coords: '41°37\'N · 0°10\'W', type: 'viewpoint', notes: 'Avvicinamento alla zona di totalità.' },
-        { id: uid(), day: 5, name: 'Punto Eclissi (Río Lobos)', coords: '41°45\'N · 2°59\'W', type: 'activity', notes: 'ECLISSI SOLARE TOTALE. Spot perfetto.' }
-      ]
-    },
-    {
-      id: uid(), code: 'PRJ-09', title: 'Spagna · Eclissi via Traghetto', region: 'Spagna', status: 'draft',
-      distance: '2520 km', duration: '14 giorni', season: 'Agosto 2026', terrain: 'Misto',
-      description: 'Variante di percorso per l\'Eclissi: traghetto da Genova a Barcellona.',
-      coverImage: '', dateAdded: new Date(Date.now() - 86400000 * 5).toISOString(),
-      stops: [
-        { id: uid(), day: 1, name: 'Borgo → Genova', coords: '44°24\'N · 8°56\'E', type: 'town', notes: 'Imbarco sul Ferry.' },
-        { id: uid(), day: 2, name: 'Genova → Barcellona', coords: '41°23\'N · 2°10\'E', type: 'activity', notes: 'Traghetto e sbarco in Spagna.' },
-        { id: uid(), day: 4, name: 'Barcellona → Monegros', coords: '41°37\'N · 0°10\'W', type: 'camp', notes: 'Puntando verso il deserto e l\'Eclissi.' }
-      ]
-    },
-    {
-      id: uid(), code: 'PRJ-10', title: 'Fuga Corsica · Wild', region: 'Corsica', status: 'draft',
-      distance: '3295 km', duration: '7 giorni', season: 'Estate', terrain: 'Montagna · Mare',
-      description: 'Attraversamento dell\'interno montuoso della Corsica: Col de Bavella, Bonifacio, Palombaggia.',
-      coverImage: '', dateAdded: new Date(Date.now() - 86400000 * 3).toISOString(),
-      stops: [
-        { id: uid(), day: 1, name: 'Borgo → Livorno → Bastia', coords: '42°41\'N · 9°27\'E', type: 'activity', notes: 'Ferry GNV. Passeggiata al Vieux Port.' },
-        { id: uid(), day: 3, name: 'Saint-Florent → Île-Rousse', coords: '42°37\'N · 8°56\'E', type: 'town', notes: 'Cittadella genovese sul mare, vibe rilassata.' },
-        { id: uid(), day: 5, name: 'Col de Bavella', coords: '41°47\'N · 9°13\'E', type: 'camp', notes: 'Piscine naturali, acqua cristallina, notte in quota sotto le stelle.' },
-        { id: uid(), day: 6, name: 'Bavella → Bonifacio', coords: '41°23\'N · 9°09\'E', type: 'viewpoint', notes: 'Città sospesa sulla scogliera. Grotte marine.' }
+        { id: uid(), day: 2, name: 'Parco Riisitunturi', coords: '66°10\'N · 28°00\'E', type: 'trail', notes: 'Giornata intera nel parco, pranzo compreso.' }
       ]
     }
   ];
@@ -2906,10 +2684,7 @@ function seedDataIfEmpty() {
       description: 'Base ideale per esplorare la sponda meno turistica del lago. Bellagio è bella ma piena, da qui si vedono le tre punte e la luce del tramonto è pulita.',
       coverImage: '', dateAdded: new Date(Date.now() - 86400000 * 5).toISOString(),
       bestPoints: [
-        { id: uid(), name: 'Trattoria del Glicine', type: 'food', distance: '0.8 km', notes: 'Cena sul giardino, missoltini stagionali. Prenotare.' },
-        { id: uid(), name: 'Belvedere di Perledo', type: 'viewpoint', distance: '4.2 km', notes: 'Salita ripida ma asfaltata. Vista a 270° sul lago.' },
-        { id: uid(), name: 'Camping La Riva', type: 'camp', distance: '1.5 km', notes: 'Piazzole sull\'acqua, accessibile con tetto montato. Doccia calda.' },
-        { id: uid(), name: 'Sentiero del Viandante', type: 'trail', distance: '0 km', notes: 'Tappa Lierna-Varenna, 3h, ombra abbondante.' }
+        { id: uid(), name: 'Trattoria del Glicine', type: 'food', distance: '0.8 km', notes: 'Cena sul giardino, missoltini stagionali. Prenotare.' }
       ]
     }
   ];
@@ -3130,14 +2905,12 @@ function renderItinerariList(root) {
     ${renderFooter(lastEdit)}
   `;
 
-  // Search input live
   const si = document.getElementById('itin-search');
   if (si) {
     si.addEventListener('input', (e) => {
       state.filter.itin.search = e.target.value;
       renderItinerariList(root);
     });
-    // mantieni il focus dopo re-render
     if (search) { si.focus(); si.setSelectionRange(si.value.length, si.value.length); }
   }
 }
@@ -3284,7 +3057,7 @@ function renderItineraryDetail(root, id) {
       <div class="map-wrap" id="map-itin-wrap">
         <div class="map-tile-switch">
           <button class="map-tile-btn ${state.currentTile==='topo'?'active':''}" data-map-tile="map-itin" data-tile="topo" onclick="switchTile('map-itin','topo')"><i data-lucide="mountain" class="icon-xs"></i> Topo</button>
-          <button class="map-tile-btn ${state.currentTile==='street'?'active':''}" data-map-tile="map-itin" data-tile="street" onclick="switchTile('map-itin','street')"><i data-lucide="map" class="icon-xs"></i> Strada</button>
+          <button class="map-tile-btn ${state.currentTile==='street'?'active':''}" data-map-tile="map-itin" data-tile="street" onclick="switchTile('map-itin','street')"><i data-lucide="satellite" class="icon-xs"></i> Satellite</button>
         </div>
         <div id="map-itin" style="height: 100%; width: 100%;"></div>
       </div>
@@ -3293,7 +3066,6 @@ function renderItineraryDetail(root, id) {
     ${renderFooter(lastEdit)}
   `;
 
-  // Render mappa dopo che il DOM è in piedi
   setTimeout(() => {
     const markers = stops.map((s, i) => {
       const coords = parseCoords(s.coords);
@@ -3306,7 +3078,6 @@ function renderItineraryDetail(root, id) {
     }).filter(Boolean);
 
     if (markers.length === 0) {
-      // sostituisce con un placeholder
       const wrap = document.getElementById('map-itin-wrap');
       if (wrap) wrap.innerHTML = `
         <div class="map-empty">
@@ -3500,7 +3271,7 @@ function renderPointDetail(root, id) {
       <div class="map-wrap" id="map-pt-wrap">
         <div class="map-tile-switch">
           <button class="map-tile-btn ${state.currentTile==='topo'?'active':''}" data-map-tile="map-pt" data-tile="topo" onclick="switchTile('map-pt','topo')"><i data-lucide="mountain" class="icon-xs"></i> Topo</button>
-          <button class="map-tile-btn ${state.currentTile==='street'?'active':''}" data-map-tile="map-pt" data-tile="street" onclick="switchTile('map-pt','street')"><i data-lucide="map" class="icon-xs"></i> Strada</button>
+          <button class="map-tile-btn ${state.currentTile==='street'?'active':''}" data-map-tile="map-pt" data-tile="street" onclick="switchTile('map-pt','street')"><i data-lucide="satellite" class="icon-xs"></i> Satellite</button>
         </div>
         <div id="map-pt" style="height: 100%; width: 100%;"></div>
       </div>
@@ -3509,7 +3280,6 @@ function renderPointDetail(root, id) {
     ${renderFooter(lastEdit)}
   `;
 
-  // Render mappa dopo che il DOM è in piedi
   setTimeout(() => {
     const coords = parseCoords(p.coords);
     if (!coords) {
@@ -3563,7 +3333,7 @@ function closeModal() {
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
 
 /* ===========================================================
-   HERO IMAGE MODAL (settings-like)
+   HERO IMAGE MODAL
 =========================================================== */
 function openHeroImageModal() {
   const current = state.meta.heroImage || '';
@@ -3616,7 +3386,6 @@ function openHeroImageModal() {
 }
 
 async function saveHeroImage() {
-  // Decide quale tab è attivo: se file, prendi data url; altrimenti URL
   const activeTab = document.querySelector('.img-tab.active')?.dataset.tab || 'url';
   let value = '';
   if (activeTab === 'file') {
@@ -3646,7 +3415,6 @@ function switchImgTab(btn, tab) {
 }
 
 function bindImageModalHandlers(prefix, kind) {
-  // URL tab live preview
   const urlInput = document.getElementById(`${prefix}-url`);
   const urlPreview = document.getElementById(`${prefix}-preview`);
   if (urlInput) {
@@ -3657,7 +3425,6 @@ function bindImageModalHandlers(prefix, kind) {
     });
   }
 
-  // File tab
   const drop = document.getElementById(`${prefix}-drop`);
   const fileInput = document.getElementById(`${prefix}-file`);
   const filePreview = document.getElementById(`${prefix}-file-preview`);
@@ -4156,9 +3923,9 @@ function openSettingsModal() {
               </div>
               <button class="btn btn-ghost" onclick="doSignOut()"><i data-lucide="log-out" class="icon-sm"></i> Esci</button>
             </div>
-            <div class="settings-section-desc">I tuoi dati sono sincronizzati nel cloud. Modifiche e nuovi contenuti vengono salvati automaticamente e visibili da qualsiasi dispositivo dove sei loggato.</div>
+            <div class="settings-section-desc">I tuoi dati sono sincronizzati nel cloud. Essendo in fase di sviluppo, il database è condiviso tra tutti gli utenti.</div>
           ` : `
-            <div class="settings-section-desc">Accedi col tuo account Google per sincronizzare il tuo quaderno tra più dispositivi. I dati locali verranno mantenuti e copiati nel cloud al primo accesso.</div>
+            <div class="settings-section-desc">Accedi col tuo account Google per sincronizzare il tuo quaderno tra più dispositivi.</div>
             <div class="settings-actions">
               <button class="btn-google" onclick="doSignIn()">
                 <svg class="g-icon" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
@@ -4341,8 +4108,7 @@ async function boot() {
   if (seeded) { await persistItineraries(); await persistPoints(); }
   state.route = parseHash();
   await render();
-  // Inizializza Firebase Auth (se configurato)
-  // Aspetta un attimo che il modulo Firebase abbia caricato
+  
   setTimeout(() => {
     initFirebaseAuth();
     updateSyncBadge();
@@ -4350,22 +4116,18 @@ async function boot() {
 }
 boot();
 
-// expose to window
 Object.assign(window, {
   goto, openItineraryModal, openPointModal, closeModal,
   saveItinerary, savePoint, addStage, removeStage, addBP, removeBP, pickType,
   confirmDelete, doDelete,
   openHeroImageModal, saveHeroImage, clearHeroImage,
   openItineraryImageModal, openPointImageModal, saveCoverImage, clearCoverImage,
-  // new in v3
   switchImgTab,
   setItinFilter, clearItinFilter, clearPtsFilter,
   switchTile,
   openSettingsModal, exportData, triggerImport, confirmImportReplace, confirmReset, doReset,
-  // new in v4 (Firebase)
   doSignIn, doSignOut
 });
 </script>
-
-
-</body></html>
+</body>
+</html>
