@@ -53,7 +53,7 @@
   --bone:        #faf3e0;
   --serif: 'Fraunces','Georgia',serif;
   --mono:  'JetBrains Mono','Menlo',monospace;
-  --r-sm:6px; --r-md:14px; --r-lg:24px; /* Aumentato border-radius per stile SiVola */
+  --r-sm:6px; --r-md:14px; --r-lg:24px;
 }
 
 /* ================================================
@@ -73,7 +73,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:999;o
 .frame{background:var(--sand);border-bottom:1px solid var(--forest);position:sticky;top:0;z-index:200}
 .frame-inner{max-width:1280px;margin:0 auto;padding:14px 28px;display:flex;align-items:center;gap:16px}
 .brand{display:flex;align-items:center;gap:10px;cursor:pointer;flex-shrink:0;text-decoration:none}
-.brand-logo{height:28px;width:auto;object-fit:contain} /* NUOVO LOGO */
+.brand-logo{height:28px;width:auto;object-fit:contain} 
 .brand-name{font-family:var(--serif);font-weight:600;font-size:18px;color:var(--forest);line-height:1}
 .brand-name .dot{color:var(--clay)}
 .brand-sub{font-family:var(--mono);font-size:8px;letter-spacing:.2em;text-transform:uppercase;color:var(--forest-faint);margin-top:2px}
@@ -113,7 +113,7 @@ main{max-width:1280px;margin:0 auto;padding:32px 28px 100px;position:relative;z-
 .home-hero h1 em{font-style:italic;color:var(--clay)}
 .home-hero p{font-size:16px;line-height:1.6;color:var(--forest-soft);max-width:520px;margin-bottom:24px}
 .home-hero .btns{display:flex;gap:10px;flex-wrap:wrap}
-.home-hero-img{width:100%;height:100%;max-height:480px;object-fit:cover;border-radius:var(--r-lg);box-shadow:0 12px 30px rgba(31,45,28,.08)} /* Immagine Hero affiancata */
+.home-hero-img{width:100%;height:100%;max-height:480px;object-fit:cover;border-radius:var(--r-lg);box-shadow:0 12px 30px rgba(31,45,28,.08)}
 .home-split{display:grid;grid-template-columns:1fr 1fr;gap:48px}
 .home-section-title{font-family:var(--serif);font-weight:500;font-size:20px;letter-spacing:-.01em;text-transform:uppercase;color:var(--forest);margin-bottom:18px;padding-bottom:12px;border-bottom:2px solid var(--forest);display:flex;align-items:center;justify-content:space-between}
 .home-section-title .more{font-family:var(--mono);font-size:9px;letter-spacing:.16em;color:var(--forest-faint);cursor:pointer;display:inline-flex;align-items:center;gap:4px;font-weight:500;transition:.15s}
@@ -146,12 +146,14 @@ main{max-width:1280px;margin:0 auto;padding:32px 28px 100px;position:relative;z-
 .sec-meta{font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:var(--forest-faint);text-transform:uppercase}
 
 /* ================================================
-   CARD GRID (SIVOLA INSPIRATION)
+   CARD GRID
 ================================================ */
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:18px;margin-bottom:32px}
 .card{background:var(--bone);border:1px solid var(--forest-ghost);border-radius:var(--r-lg);overflow:hidden;cursor:pointer;display:flex;flex-direction:column;transition:.2s ease;box-shadow:0 4px 12px rgba(31,45,28,.04)}
 .card:hover{background:var(--bone);transform:translateY(-4px);box-shadow:0 12px 28px rgba(31,45,28,.12)}
-.card-cover{aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;border-bottom:1px solid var(--forest-ghost);position:relative}
+.card-cover{aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;border-bottom:1px solid var(--forest-ghost);position:relative; overflow:hidden;}
+.card-cover img{width:100%;height:100%;object-fit:cover;transition:.3s ease;}
+.card:hover .card-cover img{transform:scale(1.05);}
 .card-body{padding:20px;flex:1;display:flex;flex-direction:column}
 .card-tag{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--forest-faint);margin-bottom:10px;display:flex;align-items:center;justify-content:space-between}
 .card-title{font-family:var(--serif);font-weight:600;font-size:22px;text-transform:uppercase;color:var(--forest);line-height:1.1;margin-bottom:6px;letter-spacing:-.015em}
@@ -167,17 +169,17 @@ main{max-width:1280px;margin:0 auto;padding:32px 28px 100px;position:relative;z-
 /* ================================================
    SHOP SCROLLER (HOME)
 ================================================ */
-.shop-scroller{display:flex;gap:16px;overflow-x:auto;padding-bottom:20px;scroll-snap-type:x mandatory;scrollbar-width:none;-webkit-overflow-scrolling:touch;}
+.shop-scroller{display:flex;gap:16px;overflow-x:auto;padding-bottom:20px;scroll-behavior:smooth;scrollbar-width:none;-webkit-overflow-scrolling:touch; cursor:grab;}
+.shop-scroller:active{cursor:grabbing;}
 .shop-scroller::-webkit-scrollbar{display:none;}
-.shop-scroller .product-card{min-width:260px;max-width:280px;scroll-snap-align:start;}
+.shop-scroller .product-card{min-width:260px;max-width:280px;flex-shrink:0; pointer-events:auto;}
 
 /* ================================================
    DETAIL VIEW
 ================================================ */
 .back-btn{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--forest-soft);background:none;border:none;cursor:pointer;display:inline-flex;align-items:center;gap:7px;margin-bottom:20px;padding:0;transition:.15s}
 .back-btn:hover{color:var(--clay)}
-.detail-hero{aspect-ratio:21/9;max-height:340px;background:var(--sand-mid);border:1px solid var(--forest-ghost);border-radius:var(--r-md);overflow:hidden;margin-bottom:24px;display:flex;align-items:center;justify-content:center;color:var(--forest-faint)}
-.detail-hero img{width:100%;height:100%;object-fit:cover}
+.detail-hero{aspect-ratio:21/9;max-height:400px;background:var(--sand-mid);border:1px solid var(--forest-ghost);border-radius:var(--r-md);overflow:hidden;margin-bottom:24px;display:flex;align-items:center;justify-content:center;color:var(--forest-faint);position:relative}
 .detail-title-row{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:8px}
 .detail-title-row h1{font-family:var(--serif);font-weight:500;font-size:clamp(32px,5vw,60px);text-transform:uppercase;color:var(--forest);letter-spacing:-.03em;line-height:.95;flex:1}
 .detail-title-row .actions{display:flex;gap:8px;flex-shrink:0;padding-top:6px}
@@ -235,7 +237,7 @@ main{max-width:1280px;margin:0 auto;padding:32px 28px 100px;position:relative;z-
 .map-empty{height:200px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;background:var(--sand-light);border:1.5px dashed var(--forest-ghost);border-radius:var(--r-md);color:var(--forest-faint);font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-align:center;padding:20px}
 
 /* ================================================
-   SHOP (HIGH HOPE INSPIRATION)
+   SHOP
 ================================================ */
 .shop-banner{display:grid;grid-template-columns:1.3fr 1fr;gap:40px;align-items:center;padding:36px 0 32px;border-bottom:1px solid var(--forest-ghost);margin-bottom:36px}
 .shop-banner h1{font-family:var(--serif);font-size:clamp(34px,5.5vw,72px);font-weight:400;line-height:.9;letter-spacing:-.035em;margin-bottom:14px}
@@ -252,11 +254,11 @@ main{max-width:1280px;margin:0 auto;padding:32px 28px 100px;position:relative;z-
 .shop-filter-btn:hover{background:var(--sand-light)}
 .shop-filter-btn.active{background:var(--forest);color:var(--bone);border-color:var(--forest)}
 
-.product-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:32px 18px} /* Grid più pulita */
+.product-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:32px 18px}
 .product-card{background:transparent;border:none;display:flex;flex-direction:column;transition:.2s ease;}
 .product-card:hover{transform:translateY(-4px);}
 .product-card.coming-soon{opacity:.65}
-.product-visual{aspect-ratio:4/5;background:var(--sand-mid);border-radius:var(--r-md);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;} /* Stile editoriale più verticale */
+.product-visual{aspect-ratio:4/5;background:var(--sand-mid);border-radius:var(--r-md);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;}
 .product-type-badge{position:absolute;top:12px;left:12px;font-family:var(--mono);font-size:8px;letter-spacing:.16em;text-transform:uppercase;padding:4px 8px;background:var(--forest);color:var(--bone);border-radius:var(--r-sm)}
 .product-cs-badge{position:absolute;top:12px;right:12px;font-family:var(--mono);font-size:8px;letter-spacing:.16em;text-transform:uppercase;padding:4px 8px;background:var(--stone);color:var(--bone);border-radius:var(--r-sm)}
 .product-body{padding:16px 0 0;display:flex;flex-direction:column;flex:1}
@@ -270,10 +272,8 @@ main{max-width:1280px;margin:0 auto;padding:32px 28px 100px;position:relative;z-
 .product-sizes{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:16px}
 .size-tag{font-family:var(--mono);font-size:8.5px;letter-spacing:.1em;padding:2px 6px;border:1px solid var(--forest-ghost);color:var(--forest-faint);border-radius:3px}
 
-/* ... mantenuti gli stili Modal, Forms, Stage Editor, Best Points (nascosti per brevità CSS ma invariati) ... */
-
 /* ================================================
-   MODAL & FORMS & STAGES (INVARIATI)
+   MODAL & FORMS
 ================================================ */
 .modal-back{position:fixed;inset:0;background:rgba(31,45,28,.55);z-index:300;display:none;align-items:flex-start;justify-content:center;padding:24px 16px 24px;overflow-y:auto;backdrop-filter:blur(3px)}
 .modal-back.open{display:flex}
@@ -341,7 +341,7 @@ footer .center{font-family:var(--serif);font-style:italic;text-transform:none;le
   .nav{overflow-x:auto;-webkit-overflow-scrolling:touch;flex-wrap:nowrap;gap:2px;padding-bottom:1px;scrollbar-width:none}
   .nav::-webkit-scrollbar{display:none}
   .brand-sub{display:none}
-  .brand-logo{height:24px} /* Adatta logo su mobile */
+  .brand-logo{height:24px} 
   .home-hero{grid-template-columns:1fr; gap:24px; padding:16px 0 32px;}
   .home-hero-img{max-height:300px;}
   .field-row, .field-3{grid-template-columns:1fr}
@@ -369,7 +369,7 @@ footer .center{font-family:var(--serif);font-style:italic;text-transform:none;le
 <header class="frame">
   <div class="frame-inner">
     <div class="brand" onclick="goto('home')">
-      <img src="logo1.png" alt="Baito dell'Orso Logo" class="brand-logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+      <img src="images/logo1.png" alt="Baito dell'Orso Logo" class="brand-logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
       <svg style="display:none; color:var(--clay); width:26px; height:26px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M11 5.882V19.24a1.76 1.76 0 0 1-3.417.592l-2.147-6.15M18 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-7-1a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/></svg>
       <div>
         <div class="brand-name">Baito<span class="dot">·</span>dell'Orso</div>
@@ -607,8 +607,8 @@ window.addEventListener('hashchange',()=>{S.route=parseHash();render();});
 /* ================================================
    AUTO CALCULATOR & STAGE LOGIC
 ================================================ */
-function autoCalc() { /* Mantenuta invarita per brevità */ }
-function resetAutoCalc() { /* Mantenuta invarita */ }
+function autoCalc() { /* ... */ }
+function resetAutoCalc() { /* ... */ }
 const STAGE_TYPES=[{id:'travel',label:'Viaggio'},{id:'relax',label:'Relax'},{id:'beach',label:'Spiaggia'},{id:'viewpoint',label:'Panorama'},{id:'adventure',label:'Avventura'},{id:'activity',label:'Attività'},{id:'evening',label:'Serata'},{id:'exploration',label:'Esplorazione'},{id:'history',label:'Storia'},{id:'food',label:'Cibo'}];
 const TRAVEL_MODES=[{id:'car',label:'Auto'},{id:'moto',label:'Moto'},{id:'ferry',label:'Traghetto'},{id:'plane',label:'Aereo'},{id:'train',label:'Treno'},{id:'bus',label:'Bus'}];
 function typeLabel(t){return STAGE_TYPES.find(x=>x.id===t)?.label||t;}
@@ -620,7 +620,7 @@ function pickMode(btn,stageId){ const acc=document.querySelector(`.stage-acc[dat
 function openAllAcc(){ document.querySelectorAll('.stage-acc').forEach(a=>{a.classList.add('open');a.classList.remove('closed');}); }
 function closeAllAcc(){ document.querySelectorAll('.stage-acc').forEach(a=>{a.classList.remove('open');a.classList.add('closed');updateAccSummary(a);}); }
 
-function stageAccHtml(s,i){ /* Logica invariata, omessa ridondanza */ 
+function stageAccHtml(s,i){ 
   const t=s.type||'travel',isTravel=t==='travel';
   const tm=s.travelMode||'car';
   const summary=isTravel?(s.fromPlace&&s.toPlace?`${s.fromPlace} → ${s.toPlace}`:''):(s.name||'');
@@ -695,6 +695,20 @@ function toneFor(type){return{travel:'#3a4d36',relax:'#607d4d',beach:'#b88d1f',v
 const STATUS_LABELS={draft:'In Bozza',active:'In Corso',completed:'Concluso',filed:'Archiviato'};
 
 /* ================================================
+   DRAG TO SCROLL (per Vetrina Home su desktop)
+================================================ */
+function attachDragScroll(slider) {
+  let isDown = false; let startX; let scrollLeft;
+  slider.addEventListener('mousedown', (e) => { isDown = true; startX = e.pageX - slider.offsetLeft; scrollLeft = slider.scrollLeft; });
+  slider.addEventListener('mouseleave', () => { isDown = false; });
+  slider.addEventListener('mouseup', () => { isDown = false; });
+  slider.addEventListener('mousemove', (e) => {
+    if (!isDown) return; e.preventDefault();
+    const x = e.pageX - slider.offsetLeft; const walk = (x - startX) * 2; slider.scrollLeft = scrollLeft - walk;
+  });
+}
+
+/* ================================================
    RENDER ENGINE
 ================================================ */
 function render(){
@@ -713,6 +727,9 @@ function render(){
     default: renderHome(app);
   }
   ri();
+  // Attach scroll
+  const scroller = document.querySelector('.shop-scroller');
+  if(scroller) attachDragScroll(scroller);
 }
 
 /* ---- HOME ---- */
@@ -722,7 +739,9 @@ function renderHome(root){
   const km=totalAllKm();
   const stops=S.itins.reduce((a,it)=>a+(it.stops?.length||0),0);
   
-  /* AGGIORNATO: HERO LAYOUT E IMMAGINE AFFIANCATA */
+  // VERIFICA MASTER: Mostra i bottoni Nuovo solo al proprietario
+  const isAdmin = S.cloud.owner; 
+
   root.innerHTML=`
   <div class="home-hero">
     <div>
@@ -734,7 +753,7 @@ function renderHome(root){
       </div>
     </div>
     <div>
-      <img src="immagine_homepage.jpg" alt="Copertina Baito" class="home-hero-img" onerror="this.src='https://images.unsplash.com/photo-1523987355523-c7b5b0dd90a7?auto=format&fit=crop&q=80&w=800'">
+      <img src="images/immagine_homepage.png" alt="Copertina Baito" class="home-hero-img" onerror="this.src='https://images.unsplash.com/photo-1523987355523-c7b5b0dd90a7?auto=format&fit=crop&q=80&w=800'">
     </div>
   </div>
   
@@ -749,7 +768,7 @@ function renderHome(root){
         Itinerari
         <span class="more" onclick="goto('viaggiare')">Vedi tutti <i data-lucide="arrow-right" class="icon-xs"></i></span>
       </div>
-      ${recent5i.length===0?`<p class="no-items">Nessun itinerario. <button class="btn btn-ghost btn-sm" onclick="openItinModal()"><i data-lucide="plus" class="icon-xs"></i> Aggiungi</button></p>`
+      ${recent5i.length===0?`<p class="no-items">Nessun itinerario. ${isAdmin?`<button class="btn btn-ghost btn-sm" onclick="openItinModal()"><i data-lucide="plus" class="icon-xs"></i> Aggiungi</button>`:''}</p>`
       :recent5i.map(it=>{
         const t=calcTotals(it.stops);
         const dist=it.distance||(t.hasKm?Math.round(t.km)+' km':'');
@@ -764,14 +783,14 @@ function renderHome(root){
           <i data-lucide="arrow-right" class="icon-sm trip-arrow"></i>
         </div>`;
       }).join('')}
-      <div style="margin-top:16px"><button class="btn btn-primary btn-sm" onclick="openItinModal()"><i data-lucide="plus" class="icon-sm"></i> Nuovo Viaggio</button></div>
+      ${isAdmin ? `<div style="margin-top:16px"><button class="btn btn-primary btn-sm" onclick="openItinModal()"><i data-lucide="plus" class="icon-sm"></i> Nuovo Viaggio</button></div>` : ''}
     </div>
     <div>
       <div class="home-section-title">
         Punti di Riferimento
         <span class="more" onclick="goto('punti')">Vedi tutti <i data-lucide="arrow-right" class="icon-xs"></i></span>
       </div>
-      ${recent5p.length===0?`<p class="no-items">Nessun punto. <button class="btn btn-ghost btn-sm" onclick="openPointModal()"><i data-lucide="plus" class="icon-xs"></i> Aggiungi</button></p>`
+      ${recent5p.length===0?`<p class="no-items">Nessun punto. ${isAdmin?`<button class="btn btn-ghost btn-sm" onclick="openPointModal()"><i data-lucide="plus" class="icon-xs"></i> Aggiungi</button>`:''}</p>`
       :recent5p.map(p=>`<div class="trip-row" onclick="goto('point','${p.id}')">
         <div class="trip-row-icon" style="background:#b85a1f20;color:#b85a1f"><i data-lucide="map-pin" class="icon-sm"></i></div>
         <div class="trip-row-info">
@@ -780,7 +799,7 @@ function renderHome(root){
         </div>
         <i data-lucide="arrow-right" class="icon-sm trip-arrow"></i>
       </div>`).join('')}
-      <div style="margin-top:16px"><button class="btn btn-clay btn-sm" onclick="openPointModal()"><i data-lucide="plus" class="icon-sm"></i> Nuovo Punto</button></div>
+      ${isAdmin ? `<div style="margin-top:16px"><button class="btn btn-clay btn-sm" onclick="openPointModal()"><i data-lucide="plus" class="icon-sm"></i> Nuovo Punto</button></div>` : ''}
     </div>
   </div>
   
@@ -789,7 +808,7 @@ function renderHome(root){
       <h2>Vetrina del Baito</h2>
       <span class="more" onclick="goto('shop')" style="cursor:pointer; font-family:var(--mono); font-size:9px; letter-spacing:.16em; color:var(--clay); text-transform:uppercase; font-weight:500;">Vai allo Shop →</span>
     </div>
-    <div class="shop-scroller">
+    <div class="shop-scroller" title="Trascina con il mouse per scorrere">
       ${PRODUCTS.map(p=>{
         const bg=p.tone+'15';
         return`<div class="product-card${p.available?'':' coming-soon'}" onclick="goto('shop')">
@@ -810,10 +829,12 @@ function renderHome(root){
   <footer><div class="left"><i data-lucide="mountain-snow" class="icon-sm"></i> BAITO DELL'ORSO · v2.0</div><div class="center">«Mai sotto un cielo che non si conosce.»</div><div class="right">${fmtDate(new Date().toISOString())}</div></footer>`;
 }
 
-/* ---- VIAGGIARE (SIVOLA STYLE CARDS) ---- */
+/* ---- VIAGGIARE ---- */
 function renderViaggiare(root){
+  const isAdmin = S.cloud.owner; 
+
   root.innerHTML=`
-  <div class="sec-head"><h2>Viaggiare · Archivio</h2><button class="btn btn-primary btn-sm" onclick="openItinModal()"><i data-lucide="plus" class="icon-sm"></i> Nuovo</button></div>
+  <div class="sec-head"><h2>Viaggiare · Archivio</h2>${isAdmin?`<button class="btn btn-primary btn-sm" onclick="openItinModal()"><i data-lucide="plus" class="icon-sm"></i> Nuovo</button>`:''}</div>
   ${S.itins.length===0?`<p class="no-items" style="padding:40px 0">Nessun itinerario. Inizia a scrivere il taccuino.</p>`:`
   <div class="grid">
     ${S.itins.map(it=>{
@@ -822,7 +843,7 @@ function renderViaggiare(root){
       const col=toneFor(it.stops?.[0]?.type||'travel');
       return`<div class="card" onclick="goto('itinerary','${it.id}')">
         <div class="card-cover" style="background:${col}18;color:${col}">
-          <i data-lucide="route" class="icon-xl"></i>
+          ${it.coverUrl ? `<img src="${esc(it.coverUrl)}" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;">` : `<i data-lucide="route" class="icon-xl"></i>`}
         </div>
         <div class="card-body">
           <div class="card-tag"><span>${esc(it.code||'')}</span><span class="status-badge status-${it.status||'draft'}">${STATUS_LABELS[it.status||'draft']}</span></div>
@@ -837,9 +858,9 @@ function renderViaggiare(root){
         </div>
       </div>`;
     }).join('')}
-    <div class="card-add" onclick="openItinModal()"><i data-lucide="plus" class="icon-lg"></i><div class="card-add-text">Nuovo Viaggio</div></div>
+    ${isAdmin?`<div class="card-add" onclick="openItinModal()"><i data-lucide="plus" class="icon-lg"></i><div class="card-add-text">Nuovo Viaggio</div></div>`:''}
   </div>`}
-  <div class="sec-head" style="margin-top:48px"><h2>Punti di Riferimento</h2><button class="btn btn-clay btn-sm" onclick="openPointModal()"><i data-lucide="plus" class="icon-sm"></i> Nuovo</button></div>
+  <div class="sec-head" style="margin-top:48px"><h2>Punti di Riferimento</h2>${isAdmin?`<button class="btn btn-clay btn-sm" onclick="openPointModal()"><i data-lucide="plus" class="icon-sm"></i> Nuovo</button>`:''}</div>
   ${S.pts.length===0?`<p class="no-items">Nessun punto ancora.</p>`:`
   <div class="grid">
     ${S.pts.map(p=>`<div class="card" onclick="goto('point','${p.id}')">
@@ -852,13 +873,15 @@ function renderViaggiare(root){
         <div class="card-meta-row"><span class="card-meta-item"><i data-lucide="star" class="icon-xs"></i>${p.bestPoints?.length||0} best points</span></div>
       </div>
     </div>`).join('')}
-    <div class="card-add" onclick="openPointModal()"><i data-lucide="plus" class="icon-lg"></i><div class="card-add-text">Nuovo Punto</div></div>
+    ${isAdmin?`<div class="card-add" onclick="openPointModal()"><i data-lucide="plus" class="icon-lg"></i><div class="card-add-text">Nuovo Punto</div></div>`:''}
   </div>`}
   <footer><div class="left"><i data-lucide="mountain-snow" class="icon-sm"></i> BAITO DELL'ORSO</div><div class="center">«Mai sotto un cielo che non si conosce.»</div><div class="right">${fmtDate(new Date().toISOString())}</div></footer>`;
 }
 
-/* ---- ITINERARY DETAIL (INVARIATO) ---- */
-function renderItinerary(root,id){ /* Mantenuto invariato */ 
+/* ---- ITINERARY DETAIL ---- */
+function renderItinerary(root,id){ 
+  const isAdmin = S.cloud.owner; 
+
   const it=S.itins.find(x=>x.id===id);
   if(!it){root.innerHTML='<p style="padding:40px">Non trovato.</p>';return;}
   const stops=[...(it.stops||[])].sort((a,b)=>(a.day||0)-(b.day||0));
@@ -866,15 +889,26 @@ function renderItinerary(root,id){ /* Mantenuto invariato */
   const distDisplay=it.distance||(t.hasKm?Math.round(t.km)+' km':null);
   const durDisplay=it.duration||(t.hasHours?t.hoursStr:null);
   const autoKm=!it.distance&&t.hasKm,autoDur=!it.duration&&t.hasHours;
+  
+  // IMMAGINE COPERTINA COME SFONDO DELLA HERO
+  const heroStyle = it.coverUrl 
+      ? `background-image: url('${esc(it.coverUrl)}'); background-size: cover; background-position: center;`
+      : `background: var(--sand-mid);`;
+
   root.innerHTML=`
   <button class="back-btn" onclick="goto('viaggiare')"><i data-lucide="arrow-left" class="icon-sm"></i> Tutti i Viaggi</button>
-  <div class="detail-hero"><i data-lucide="mountain-snow" style="width:60px;height:60px;stroke-width:1;opacity:.3"></i></div>
+  
+  <div class="detail-hero" style="${heroStyle}">
+    ${!it.coverUrl ? `<i data-lucide="mountain-snow" style="width:60px;height:60px;stroke-width:1;opacity:.3"></i>` : ''}
+  </div>
+
   <div class="detail-title-row">
     <h1>${esc(it.title)}</h1>
+    ${isAdmin ? `
     <div class="actions">
       <button class="btn btn-ghost btn-sm" onclick="openItinModal('${it.id}')"><i data-lucide="pencil" class="icon-sm"></i> Modifica</button>
       <button class="btn btn-danger btn-sm" onclick="deleteItin('${it.id}')"><i data-lucide="trash-2" class="icon-sm"></i></button>
-    </div>
+    </div>` : ''}
   </div>
   <div class="detail-meta">
     <span><i data-lucide="map-pin"></i>${esc(it.region||'—')}</span>
@@ -936,7 +970,9 @@ function renderItinerary(root,id){ /* Mantenuto invariato */
   },80);
 }
 
-function renderPoint(root,id){ /* Mantenuto invariato */ 
+function renderPoint(root,id){
+  const isAdmin = S.cloud.owner; 
+
   const p=S.pts.find(x=>x.id===id);
   if(!p){root.innerHTML='<p style="padding:40px">Non trovato.</p>';return;}
   const bps=p.bestPoints||[];
@@ -944,10 +980,11 @@ function renderPoint(root,id){ /* Mantenuto invariato */
   <button class="back-btn" onclick="goto('viaggiare')"><i data-lucide="arrow-left" class="icon-sm"></i> Tutti i Punti</button>
   <div class="detail-title-row">
     <h1>${esc(p.title)}</h1>
+    ${isAdmin ? `
     <div class="actions">
       <button class="btn btn-ghost btn-sm" onclick="openPointModal('${p.id}')"><i data-lucide="pencil" class="icon-sm"></i> Modifica</button>
       <button class="btn btn-danger btn-sm" onclick="deletePt('${p.id}')"><i data-lucide="trash-2" class="icon-sm"></i></button>
-    </div>
+    </div>` : ''}
   </div>
   <div class="detail-meta"><span><i data-lucide="map-pin"></i>${esc(p.region||'—')}</span>${p.coords?`<span style="font-family:var(--mono);font-size:10px">${esc(p.coords)}</span>`:''}</div>
   ${p.description?`<p style="font-size:16px;line-height:1.65;color:var(--forest-soft);margin-bottom:24px">${nl2br(p.description)}</p>`:''}
@@ -1029,8 +1066,8 @@ function closeModal(){ document.getElementById('modal-back').classList.remove('o
 function escKey(e){if(e.key==='Escape')closeModal();}
 function scrollModalBottom(){const b=document.querySelector('.modal-body');if(b)b.scrollTo({top:b.scrollHeight,behavior:'smooth'});}
 
-function openItinModal(id=null){ /* Omissis: Identico all'originale, gestisce solo logica interna */ 
-  const it=id?JSON.parse(JSON.stringify(S.itins.find(x=>x.id===id))):{id:uid(),title:'',region:'',distance:'',duration:'',season:'',terrain:'',description:'',status:'draft',stops:[],dateAdded:new Date().toISOString()};
+function openItinModal(id=null){ 
+  const it=id?JSON.parse(JSON.stringify(S.itins.find(x=>x.id===id))):{id:uid(),title:'',region:'',coverUrl:'',distance:'',duration:'',season:'',terrain:'',description:'',status:'draft',stops:[],dateAdded:new Date().toISOString()};
   const stops=it.stops||[];
   openModal(`
   <div class="modal-head">
@@ -1042,6 +1079,12 @@ function openItinModal(id=null){ /* Omissis: Identico all'originale, gestisce so
       <div class="field"><label>Titolo *</label><input id="i-title" value="${esc(it.title)}"></div>
       <div class="field"><label>Regione</label><input id="i-region" value="${esc(it.region)}"></div>
     </div>
+    
+    <div class="field">
+      <label>Link Immagine Copertina (URL pubblico)</label>
+      <input id="i-cover" value="${esc(it.coverUrl)}" placeholder="es: https://images.unsplash.com/photo-123...">
+    </div>
+
     <div class="field-row field-3">
       <div class="field"><label>Stato</label><select id="i-status"><option value="draft"${it.status==='draft'?' selected':''}>In Bozza</option><option value="active"${it.status==='active'?' selected':''}>In Corso</option><option value="completed"${it.status==='completed'?' selected':''}>Concluso</option><option value="filed"${it.status==='filed'?' selected':''}>Archiviato</option></select></div>
       <div class="field"><label>Stagione</label><input id="i-season" value="${esc(it.season)}"></div>
@@ -1073,10 +1116,33 @@ function openItinModal(id=null){ /* Omissis: Identico all'originale, gestisce so
 }
 
 function addStage(){ const list=document.getElementById('stages-list'); if(!list)return; const emp=list.querySelector('.stages-empty');if(emp)emp.remove(); const count=list.querySelectorAll('.stage-acc').length; const s={id:uid(),day:count+1,stageDate:'',type:'travel',travelMode:'car',fromPlace:'',toPlace:'',distance:'',hours:'',cost:'',name:'',timeSlot:'',duration:'',coords:'',notes:''}; const div=document.createElement('div'); div.innerHTML=stageAccHtml(s,count); list.appendChild(div.firstElementChild); ri(); setTimeout(()=>scrollModalBottom(),50); }
-async function saveItin(id){ const title=document.getElementById('i-title')?.value.trim(); if(!title){toast('Manca il titolo');document.getElementById('i-title').focus();return;} const itin={ id, title, region:document.getElementById('i-region')?.value.trim()||'', status:document.getElementById('i-status')?.value||'draft', season:document.getElementById('i-season')?.value.trim()||'', terrain:document.getElementById('i-terrain')?.value.trim()||'', distance:document.getElementById('itin-distance')?.value.trim()||'', duration:document.getElementById('itin-duration')?.value.trim()||'', description:document.getElementById('i-desc')?.value||'', stops:collectStages(), dateAdded:S.itins.find(x=>x.id===id)?.dateAdded||new Date().toISOString() }; const idx=S.itins.findIndex(x=>x.id===id); if(idx>=0)S.itins[idx]=itin;else S.itins.unshift(itin); await persist(); closeModal();toast('Viaggio salvato!'); if(S.route.name==='itinerary')renderItinerary(document.getElementById('app'),id); else render(); }
+
+async function saveItin(id){ 
+  const title=document.getElementById('i-title')?.value.trim(); 
+  if(!title){toast('Manca il titolo');document.getElementById('i-title').focus();return;} 
+  const itin={ 
+    id, title, 
+    region:document.getElementById('i-region')?.value.trim()||'', 
+    coverUrl:document.getElementById('i-cover')?.value.trim()||'', /* NUOVO CAMPO SALVATO */
+    status:document.getElementById('i-status')?.value||'draft', 
+    season:document.getElementById('i-season')?.value.trim()||'', 
+    terrain:document.getElementById('i-terrain')?.value.trim()||'', 
+    distance:document.getElementById('itin-distance')?.value.trim()||'', 
+    duration:document.getElementById('itin-duration')?.value.trim()||'', 
+    description:document.getElementById('i-desc')?.value||'', 
+    stops:collectStages(), 
+    dateAdded:S.itins.find(x=>x.id===id)?.dateAdded||new Date().toISOString() 
+  }; 
+  const idx=S.itins.findIndex(x=>x.id===id); 
+  if(idx>=0)S.itins[idx]=itin;else S.itins.unshift(itin); 
+  await persist(); 
+  closeModal();toast('Viaggio salvato!'); 
+  if(S.route.name==='itinerary')renderItinerary(document.getElementById('app'),id); else render(); 
+}
+
 async function deleteItin(id){ if(!confirm('Eliminare questo itinerario?'))return; S.itins=S.itins.filter(x=>x.id!==id); await persist();closeModal();toast('Eliminato.');goto('viaggiare'); }
 
-function openPointModal(id=null){ /* Identico all'originale */ 
+function openPointModal(id=null){ 
   const p=id?JSON.parse(JSON.stringify(S.pts.find(x=>x.id===id))):{id:uid(),title:'',region:'',coords:'',description:'',bestPoints:[],dateAdded:new Date().toISOString()};
   const bps=p.bestPoints||[];
   openModal(`
