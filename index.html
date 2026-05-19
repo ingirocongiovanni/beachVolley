@@ -1,1222 +1,563 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Baito dell'Orso</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-<script src="https://unpkg.com/lucide@latest"></script>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
-<script type="module">
-  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js';
-  import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js';
-  import { getFirestore, doc, getDoc, setDoc, onSnapshot, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js';
-  const firebaseConfig = {
-    apiKey: "AIzaSyBvnnfJCMq5uEjMA7VoFuxV7m63xA3-fEA",
-    authDomain: "inviaggiocongiovanni.firebaseapp.com",
-    projectId: "inviaggiocongiovanni",
-    storageBucket: "inviaggiocongiovanni.firebasestorage.app",
-    messagingSenderId: "357273410261",
-    appId: "1:357273410261:web:4382c0aa1528328d5da05c"
-  };
-  window.__OWNER_UID = "kgs6bp3GeebckUyBzhPEyM6mGzh2";
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db  = getFirestore(app);
-  const provider = new GoogleAuthProvider();
-  window.__firebase = { auth, db, doc, getDoc, setDoc, onSnapshot, serverTimestamp, signInWithPopup, signOut, onAuthStateChanged, provider };
-</script>
-
-<style>
-/* ================================================
-   DESIGN TOKENS
-================================================ */
-:root {
-  --sand:        #ebe2cd;
-  --sand-light:  #f3ebd6;
-  --sand-mid:    #dccfb1;
-  --forest:      #1f2d1c;
-  --forest-soft: #3a4d36;
-  --forest-faint:#6a7853;
-  --forest-ghost:rgba(31,45,28,.22);
-  --moss:        #607d4d;
-  --olive:       #87904e;
-  --clay:        #b85a1f;
-  --rust:        #8b3a1a;
-  --water:       #4f7378;
-  --gold:        #b88d1f;
-  --stone:       #7a7466;
-  --plum:        #6e4470;
-  --bone:        #faf3e0;
-  --serif: 'Fraunces','Georgia',serif;
-  --mono:  'JetBrains Mono','Menlo',monospace;
-  --r-sm:6px; --r-md:14px; --r-lg:24px;
-}
-
-/* ================================================
-   BASE
-================================================ */
-*{box-sizing:border-box;margin:0;padding:0}
-html,body{background:var(--sand);color:var(--forest);font-family:var(--serif);min-height:100%;overflow-x:hidden}
-body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:999;opacity:.4;mix-blend-mode:multiply;
-  background:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 220 220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.12 0 0 0 0 0.18 0 0 0 0 0.11 0 0 0 0.16 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>")}
-::selection{background:var(--moss);color:var(--bone)}
-[data-lucide],svg.lucide{stroke-width:1.6;stroke:currentColor;fill:none;display:inline-block;vertical-align:middle;flex-shrink:0}
-.icon-xs{width:13px;height:13px} .icon-sm{width:16px;height:16px} .icon-md{width:20px;height:20px} .icon-lg{width:28px;height:28px} .icon-xl{width:40px;height:40px;stroke-width:1.3}
-
-/* ================================================
-   HEADER / NAV
-================================================ */
-.frame{background:var(--sand);border-bottom:1px solid var(--forest);position:sticky;top:0;z-index:200}
-.frame-inner{max-width:1280px;margin:0 auto;padding:14px 28px;display:flex;align-items:center;gap:16px}
-.brand{display:flex;align-items:center;gap:10px;cursor:pointer;flex-shrink:0;text-decoration:none}
-.brand-logo{height:28px;width:auto;object-fit:contain} 
-.brand-name{font-family:var(--serif);font-weight:600;font-size:18px;color:var(--forest);line-height:1}
-.brand-name .dot{color:var(--clay)}
-.brand-sub{font-family:var(--mono);font-size:8px;letter-spacing:.2em;text-transform:uppercase;color:var(--forest-faint);margin-top:2px}
-.nav{display:flex;gap:3px;flex:1;justify-content:center;min-width:0}
-.nav-link{font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:.15em;text-transform:uppercase;color:var(--forest-soft);padding:7px 12px;border-radius:var(--r-sm);cursor:pointer;background:none;border:1px solid transparent;display:inline-flex;align-items:center;gap:7px;white-space:nowrap;transition:.15s;flex-shrink:0}
-.nav-link:hover{background:var(--sand-light);color:var(--forest)}
-.nav-link.active{background:var(--forest);color:var(--bone);border-color:var(--forest)}
-.nav-end{display:flex;align-items:center;gap:8px;flex-shrink:0}
-.sync-dot{width:8px;height:8px;border-radius:50%;background:var(--forest-ghost);flex-shrink:0}
-.sync-dot.ok{background:var(--moss);animation:pulse 2s infinite}
-.sync-dot.owner{background:var(--clay);animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-
-main{max-width:1280px;margin:0 auto;padding:32px 28px 100px;position:relative;z-index:1}
-
-/* ================================================
-   BUTTONS
-================================================ */
-.btn{font-family:var(--mono);font-size:10.5px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;padding:9px 16px;border:1px solid var(--forest);background:var(--sand);color:var(--forest);cursor:pointer;display:inline-flex;align-items:center;gap:8px;border-radius:var(--r-sm);transition:.15s;white-space:nowrap}
-.btn:hover{background:var(--forest);color:var(--bone)}
-.btn-primary{background:var(--moss);border-color:var(--moss);color:var(--bone)}
-.btn-primary:hover{background:var(--forest-soft)}
-.btn-clay{background:var(--clay);border-color:var(--clay);color:var(--bone)}
-.btn-clay:hover{background:var(--rust)}
-.btn-ghost{background:transparent;border-color:var(--forest-ghost);color:var(--forest-soft)}
-.btn-ghost:hover{background:var(--sand-light);color:var(--forest)}
-.btn-danger{background:transparent;border-color:var(--rust);color:var(--rust)}
-.btn-danger:hover{background:var(--rust);color:var(--bone)}
-.btn-sm{padding:5px 11px;font-size:9.5px}
-.btn[disabled]{opacity:.5;cursor:not-allowed;pointer-events:none}
-
-/* ================================================
-   HOME
-================================================ */
-.home-hero{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center;padding:24px 0 48px;border-bottom:1px solid var(--forest-ghost);margin-bottom:40px}
-.home-hero h1{font-family:var(--serif);font-size:clamp(38px,6vw,80px);font-weight:400;line-height:.94;letter-spacing:-.035em;color:var(--forest);margin-bottom:16px}
-.home-hero h1 em{font-style:italic;color:var(--clay)}
-.home-hero p{font-size:16px;line-height:1.6;color:var(--forest-soft);max-width:520px;margin-bottom:24px}
-.home-hero .btns{display:flex;gap:10px;flex-wrap:wrap}
-.home-hero-img{width:100%;height:100%;max-height:480px;object-fit:cover;border-radius:var(--r-lg);box-shadow:0 12px 30px rgba(31,45,28,.08)}
-.home-split{display:grid;grid-template-columns:1fr 1fr;gap:48px}
-.home-section-title{font-family:var(--serif);font-weight:500;font-size:20px;letter-spacing:-.01em;text-transform:uppercase;color:var(--forest);margin-bottom:18px;padding-bottom:12px;border-bottom:2px solid var(--forest);display:flex;align-items:center;justify-content:space-between}
-.home-section-title .more{font-family:var(--mono);font-size:9px;letter-spacing:.16em;color:var(--forest-faint);cursor:pointer;display:inline-flex;align-items:center;gap:4px;font-weight:500;transition:.15s}
-.home-section-title .more:hover{color:var(--clay)}
-.trip-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--forest-ghost);cursor:pointer;transition:.12s}
-.trip-row:hover{padding-left:6px}
-.trip-row:hover .trip-arrow{color:var(--clay);transform:translateX(3px)}
-.trip-row-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.trip-row-info{flex:1;min-width:0}
-.trip-row-title{font-family:var(--serif);font-weight:500;font-size:16px;color:var(--forest);text-transform:uppercase;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.trip-row-meta{font-family:var(--mono);font-size:9.5px;color:var(--clay);letter-spacing:.04em;margin-top:2px;display:flex;align-items:center;gap:5px}
-.trip-arrow{color:var(--forest-ghost);transition:.15s}
-.status-badge{font-family:var(--mono);font-size:8px;letter-spacing:.16em;text-transform:uppercase;padding:2px 7px;border-radius:3px;flex-shrink:0}
-.status-draft{background:var(--sand-mid);color:var(--forest-faint)}
-.status-active{background:rgba(184,90,31,.15);color:var(--clay)}
-.status-completed{background:rgba(96,125,77,.15);color:var(--moss)}
-.status-filed{background:rgba(122,116,102,.15);color:var(--stone)}
-.no-items{font-family:var(--serif);font-style:italic;font-size:14px;color:var(--forest-faint);padding:20px 0}
-.home-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--forest-ghost);border:1px solid var(--forest-ghost);border-radius:var(--r-md);overflow:hidden;margin-bottom:40px}
-.stat-box{background:var(--sand);padding:16px 18px}
-.stat-label{font-family:var(--mono);font-size:8.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--forest-faint);margin-bottom:6px;display:flex;align-items:center;gap:5px}
-.stat-value{font-family:var(--serif);font-size:32px;font-weight:500;letter-spacing:-.025em;color:var(--forest);line-height:1}
-.stat-value .unit{font-family:var(--mono);font-size:12px;color:var(--forest-faint);margin-left:3px}
-
-/* ================================================
-   SECTION HEADER
-================================================ */
-.sec-head{display:flex;justify-content:space-between;align-items:baseline;padding-bottom:14px;border-bottom:2px solid var(--forest);margin-bottom:26px}
-.sec-head h2{font-family:var(--serif);font-weight:500;font-size:24px;text-transform:uppercase;letter-spacing:-.01em;color:var(--forest)}
-.sec-meta{font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:var(--forest-faint);text-transform:uppercase}
-
-/* ================================================
-   CARD GRID
-================================================ */
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:18px;margin-bottom:32px}
-.card{background:var(--bone);border:1px solid var(--forest-ghost);border-radius:var(--r-lg);overflow:hidden;cursor:pointer;display:flex;flex-direction:column;transition:.2s ease;box-shadow:0 4px 12px rgba(31,45,28,.04)}
-.card:hover{background:var(--bone);transform:translateY(-4px);box-shadow:0 12px 28px rgba(31,45,28,.12)}
-.card-cover{aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;border-bottom:1px solid var(--forest-ghost);position:relative; overflow:hidden;}
-.card-cover img{width:100%;height:100%;object-fit:cover;transition:.3s ease;}
-.card:hover .card-cover img{transform:scale(1.05);}
-.card-body{padding:20px;flex:1;display:flex;flex-direction:column}
-.card-tag{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--forest-faint);margin-bottom:10px;display:flex;align-items:center;justify-content:space-between}
-.card-title{font-family:var(--serif);font-weight:600;font-size:22px;text-transform:uppercase;color:var(--forest);line-height:1.1;margin-bottom:6px;letter-spacing:-.015em}
-.card-region{font-family:var(--serif);font-style:italic;font-size:14px;color:var(--clay);margin-bottom:12px;display:inline-flex;align-items:center;gap:5px}
-.card-desc{font-size:13.5px;line-height:1.5;color:var(--forest-soft);flex:1;margin-bottom:16px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.card-meta-row{display:flex;gap:12px;flex-wrap:wrap;font-family:var(--mono);font-size:10px;color:var(--forest-faint);border-top:1px dashed var(--forest-ghost);padding-top:12px}
-.card-meta-item{display:flex;align-items:center;gap:4px}
-.card-add{background:transparent;border:2px dashed var(--forest-ghost);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;padding:50px 20px;min-height:220px;cursor:pointer;transition:.18s;border-radius:var(--r-lg)}
-.card-add:hover{border-color:var(--clay);color:var(--clay);background:var(--sand-light)}
-.card-add-text{font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--forest-faint)}
-.card-add:hover .card-add-text{color:var(--clay)}
-
-/* ================================================
-   SHOP SCROLLER (HOME)
-================================================ */
-.shop-scroller{display:flex;gap:16px;overflow-x:auto;padding-bottom:20px;scroll-behavior:smooth;scrollbar-width:none;-webkit-overflow-scrolling:touch; cursor:grab;}
-.shop-scroller:active{cursor:grabbing;}
-.shop-scroller::-webkit-scrollbar{display:none;}
-.shop-scroller .product-card{min-width:260px;max-width:280px;flex-shrink:0; pointer-events:auto;}
-
-/* ================================================
-   DETAIL VIEW
-================================================ */
-.back-btn{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--forest-soft);background:none;border:none;cursor:pointer;display:inline-flex;align-items:center;gap:7px;margin-bottom:20px;padding:0;transition:.15s}
-.back-btn:hover{color:var(--clay)}
-.detail-hero{aspect-ratio:21/9;max-height:400px;background:var(--sand-mid);border:1px solid var(--forest-ghost);border-radius:var(--r-md);overflow:hidden;margin-bottom:24px;display:flex;align-items:center;justify-content:center;color:var(--forest-faint);position:relative}
-.detail-title-row{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:8px}
-.detail-title-row h1{font-family:var(--serif);font-weight:500;font-size:clamp(32px,5vw,60px);text-transform:uppercase;color:var(--forest);letter-spacing:-.03em;line-height:.95;flex:1}
-.detail-title-row .actions{display:flex;gap:8px;flex-shrink:0;padding-top:6px}
-.detail-meta{font-family:var(--mono);font-size:11px;color:var(--clay);margin-bottom:20px;display:flex;gap:16px;flex-wrap:wrap;letter-spacing:.05em}
-.detail-meta span{display:inline-flex;align-items:center;gap:5px}
-.detail-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:1px;background:var(--forest-ghost);border:1px solid var(--forest-ghost);border-radius:var(--r-md);overflow:hidden;margin-bottom:28px}
-.d-stat{background:var(--sand);padding:12px 16px}
-.d-stat-label{font-family:var(--mono);font-size:8.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--forest-faint);margin-bottom:4px}
-.d-stat-value{font-family:var(--serif);font-size:20px;font-weight:500;color:var(--forest);letter-spacing:-.02em}
-.auto-tag{font-family:var(--mono);font-size:7.5px;letter-spacing:.12em;background:var(--moss);color:var(--bone);padding:1px 5px;border-radius:2px;vertical-align:middle;margin-left:4px}
-
-/* ================================================
-   STAGES (detail view)
-================================================ */
-.stages{display:flex;flex-direction:column}
-.stage-item{display:grid;grid-template-columns:88px 1fr;gap:18px;padding:20px 0;border-bottom:1px solid var(--forest-ghost)}
-.stage-item:first-child{border-top:1px solid var(--forest-ghost)}
-.stage-num-col{display:flex;flex-direction:column;align-items:flex-start}
-.stage-big-num{font-family:var(--serif);font-size:56px;font-weight:400;line-height:.85;color:rgba(31,45,28,.18);letter-spacing:-.04em}
-.stage-date-big{font-family:var(--serif);font-style:italic;font-size:22px;color:var(--clay);line-height:1;margin-bottom:2px}
-.stage-day-small{font-family:var(--mono);font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--forest-faint);margin-top:4px}
-.stage-content{min-width:0}
-.stage-top-row{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:8px;flex-wrap:wrap}
-.stage-name-large{font-family:var(--serif);font-weight:500;font-size:19px;text-transform:uppercase;color:var(--forest);letter-spacing:-.01em;line-height:1.1}
-.stage-type-pill{font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;padding:4px 9px;border-radius:var(--r-sm);border:1px solid;flex-shrink:0}
-.type-travel  {color:var(--forest);border-color:var(--forest);background:rgba(31,45,28,.06)}
-.type-relax   {color:var(--moss);border-color:var(--moss);background:rgba(96,125,77,.08)}
-.type-beach   {color:var(--gold);border-color:var(--gold);background:rgba(184,141,31,.08)}
-.type-viewpoint{color:var(--water);border-color:var(--water);background:rgba(79,115,120,.08)}
-.type-adventure{color:var(--clay);border-color:var(--clay);background:rgba(184,90,31,.07)}
-.type-activity{color:var(--olive);border-color:var(--olive);background:rgba(135,144,78,.08)}
-.type-evening {color:var(--plum);border-color:var(--plum);background:rgba(110,68,112,.08)}
-.type-exploration{color:var(--olive);border-color:var(--olive);background:rgba(135,144,78,.08)}
-.type-history {color:var(--stone);border-color:var(--stone);background:rgba(122,116,102,.08)}
-.type-food    {color:var(--clay);border-color:var(--clay);background:rgba(184,90,31,.07)}
-.stage-info-row{font-family:var(--mono);font-size:10px;color:var(--forest-faint);display:flex;gap:14px;flex-wrap:wrap;margin-bottom:6px;letter-spacing:.06em;text-transform:uppercase}
-.stage-info-row strong{color:var(--forest)}
-.stage-notes-text{font-size:13.5px;line-height:1.55;color:var(--forest-soft);margin-top:6px}
-
-/* ================================================
-   MAP
-================================================ */
-#map-wrap{height:400px;border:1px solid var(--forest);border-radius:var(--r-md);margin-top:24px;overflow:hidden;position:relative}
-#map-wrap .leaflet-container{height:100%;background:#e6dfc7}
-.map-tile-sw{position:absolute;top:10px;right:10px;z-index:500;display:flex;background:var(--sand);border:1px solid var(--forest);border-radius:var(--r-sm);overflow:hidden}
-.map-tile-sw button{background:transparent;border:none;padding:6px 10px;font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;color:var(--forest-soft);border-right:1px solid var(--forest-ghost)}
-.map-tile-sw button:last-child{border-right:none}
-.map-tile-sw button.active{background:var(--forest);color:var(--bone)}
-.map-marker{width:34px;height:34px;border-radius:50%;background:var(--forest);color:var(--bone);border:2px solid var(--bone);box-shadow:0 2px 8px rgba(31,45,28,.4);display:flex!important;align-items:center;justify-content:center;font-family:var(--serif);font-weight:600;font-size:13px}
-.map-marker.is-travel{background:var(--forest-soft)}
-.map-marker.is-activity{background:var(--olive)}
-.leaflet-popup-content-wrapper{background:var(--sand);border:1px solid var(--forest);border-radius:var(--r-md);box-shadow:4px 4px 0 rgba(31,45,28,.15)}
-.leaflet-popup-tip{background:var(--forest)}
-.leaflet-popup-content{font-family:var(--serif);font-size:13.5px;color:var(--forest);margin:10px 14px}
-.map-empty{height:200px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;background:var(--sand-light);border:1.5px dashed var(--forest-ghost);border-radius:var(--r-md);color:var(--forest-faint);font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-align:center;padding:20px}
-
-/* ================================================
-   SHOP
-================================================ */
-.shop-banner{display:grid;grid-template-columns:1.3fr 1fr;gap:40px;align-items:center;padding:36px 0 32px;border-bottom:1px solid var(--forest-ghost);margin-bottom:36px}
-.shop-banner h1{font-family:var(--serif);font-size:clamp(34px,5.5vw,72px);font-weight:400;line-height:.9;letter-spacing:-.035em;margin-bottom:14px}
-.shop-banner h1 em{font-style:italic;color:var(--clay)}
-.shop-banner p{font-size:15px;line-height:1.6;color:var(--forest-soft);max-width:440px}
-.shop-how{background:var(--sand-mid);border:1px solid var(--forest-ghost);border-radius:var(--r-md);padding:20px}
-.shop-how-title{font-family:var(--mono);font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--clay);margin-bottom:10px;display:flex;align-items:center;gap:6px}
-.shop-how-steps{list-style:none;display:flex;flex-direction:column;gap:7px}
-.shop-how-steps li{font-family:var(--serif);font-size:13.5px;color:var(--forest-soft);display:flex;align-items:flex-start;gap:8px;line-height:1.4}
-.shop-how-steps li::before{content:'→';color:var(--clay);flex-shrink:0;margin-top:1px;font-family:var(--mono)}
-.shop-filters{display:flex;gap:6px;margin-bottom:24px;flex-wrap:wrap;align-items:center}
-.shop-filter-label{font-family:var(--mono);font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--forest-faint);margin-right:4px}
-.shop-filter-btn{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;padding:6px 12px;background:transparent;border:1px solid var(--forest-ghost);color:var(--forest-soft);cursor:pointer;border-radius:var(--r-sm);transition:.12s}
-.shop-filter-btn:hover{background:var(--sand-light)}
-.shop-filter-btn.active{background:var(--forest);color:var(--bone);border-color:var(--forest)}
-
-.product-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:32px 18px}
-.product-card{background:transparent;border:none;display:flex;flex-direction:column;transition:.2s ease;}
-.product-card:hover{transform:translateY(-4px);}
-.product-card.coming-soon{opacity:.65}
-.product-visual{aspect-ratio:4/5;background:var(--sand-mid);border-radius:var(--r-md);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;}
-.product-type-badge{position:absolute;top:12px;left:12px;font-family:var(--mono);font-size:8px;letter-spacing:.16em;text-transform:uppercase;padding:4px 8px;background:var(--forest);color:var(--bone);border-radius:var(--r-sm)}
-.product-cs-badge{position:absolute;top:12px;right:12px;font-family:var(--mono);font-size:8px;letter-spacing:.16em;text-transform:uppercase;padding:4px 8px;background:var(--stone);color:var(--bone);border-radius:var(--r-sm)}
-.product-body{padding:16px 0 0;display:flex;flex-direction:column;flex:1}
-.product-name{font-family:var(--serif);font-weight:600;font-size:18px;text-transform:uppercase;color:var(--forest);letter-spacing:-.01em;margin-bottom:4px}
-.product-desc{font-size:13px;line-height:1.45;color:var(--forest-soft);margin-bottom:12px;flex:1}
-.product-price{font-family:var(--serif);font-size:22px;font-weight:500;color:var(--forest);letter-spacing:-.02em;margin-bottom:12px}
-.product-price .cur{font-family:var(--mono);font-size:12px;color:var(--forest-faint);margin-right:2px}
-.product-colors{display:flex;align-items:center;gap:6px;margin-bottom:8px}
-.p-color-label{font-family:var(--mono);font-size:8.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--forest-faint);margin-right:2px}
-.color-dot{width:16px;height:16px;border-radius:50%;border:1.5px solid rgba(255,255,255,.5);box-shadow:0 0 0 1px rgba(31,45,28,.2)}
-.product-sizes{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:16px}
-.size-tag{font-family:var(--mono);font-size:8.5px;letter-spacing:.1em;padding:2px 6px;border:1px solid var(--forest-ghost);color:var(--forest-faint);border-radius:3px}
-
-/* ================================================
-   MODAL & FORMS
-================================================ */
-.modal-back{position:fixed;inset:0;background:rgba(31,45,28,.55);z-index:300;display:none;align-items:flex-start;justify-content:center;padding:24px 16px 24px;overflow-y:auto;backdrop-filter:blur(3px)}
-.modal-back.open{display:flex}
-.modal{background:var(--sand);border:1.5px solid var(--forest);width:100%;max-width:720px;border-radius:var(--r-lg);box-shadow:8px 8px 0 rgba(31,45,28,.18);overflow:hidden;position:relative}
-.modal-head{padding:16px 22px;border-bottom:1px solid var(--forest);display:flex;justify-content:space-between;align-items:center}
-.modal-head h3{font-family:var(--serif);font-size:20px;font-weight:500;text-transform:uppercase;color:var(--forest)}
-.modal-close{background:none;border:1px solid var(--forest);width:28px;height:28px;cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:var(--r-sm);color:var(--forest);transition:.12s}
-.modal-close:hover{background:var(--forest);color:var(--bone)}
-.modal-body{padding:20px 22px;max-height:65vh;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
-.modal-foot{padding:12px 22px;border-top:1px solid var(--forest);background:var(--sand-light);display:flex;justify-content:space-between;align-items:center;gap:10px}
-.modal-scroll-fab{position:sticky;bottom:12px;float:right;width:36px;height:36px;background:var(--clay);color:var(--bone);border:none;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 10px rgba(31,45,28,.3);z-index:10;transition:.15s;margin-right:2px;margin-top:-36px;pointer-events:auto}
-.field{margin-bottom:14px}
-.field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.field-3{grid-template-columns:1fr 1fr 1fr}
-.field label{font-family:var(--mono);font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--forest-faint);font-weight:500;display:flex;align-items:center;gap:5px;margin-bottom:5px}
-.field input,.field textarea,.field select{width:100%;background:var(--bone);border:1px solid var(--forest-ghost);font-family:var(--serif);font-size:15px;color:var(--forest);padding:8px 11px;border-radius:var(--r-sm);transition:.12s}
-.field textarea{min-height:80px;resize:vertical;font-family:var(--serif);font-size:14px;line-height:1.5}
-.field select{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;}
-.stages-list{background:var(--sand-light);border:1px solid var(--forest-ghost);border-radius:var(--r-md);padding:8px;margin-top:6px}
-.stage-acc{background:var(--sand);border:1px solid var(--forest-ghost);border-radius:var(--r-sm);margin-bottom:8px;overflow:hidden;transition:.15s}
-.stage-acc-head{display:flex;align-items:center;gap:10px;padding:10px 12px;cursor:pointer;}
-.stage-acc-toggle{flex-shrink:0;width:20px;height:20px;display:flex;align-items:center;justify-content:center;transition:transform .25s;}
-.stage-acc.open .stage-acc-toggle{transform:rotate(0deg)}
-.stage-acc.closed .stage-acc-toggle{transform:rotate(-90deg)}
-.stage-acc-num{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--clay);letter-spacing:.12em;text-transform:uppercase;flex-shrink:0}
-.stage-acc-summary{font-family:var(--serif);font-style:italic;font-size:13px;color:var(--forest-soft);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.stage-acc-del{background:none;border:1px solid var(--forest-ghost);color:var(--forest-faint);width:26px;height:26px;cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:var(--r-sm);flex-shrink:0;}
-.stage-acc-body{padding:14px 12px 12px;border-top:1px dashed var(--forest-ghost);display:block}
-.stage-acc.closed .stage-acc-body{display:none}
-.travel-fields,.activity-fields{display:none}
-.stage-acc.is-travel .travel-fields{display:block}
-.stage-acc.is-activity .activity-fields{display:block}
-.type-picker{display:flex;flex-wrap:wrap;gap:5px;margin-top:5px}
-.type-opt{font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;padding:5px 9px;border:1px solid var(--forest-ghost);color:var(--forest-soft);background:transparent;cursor:pointer;border-radius:var(--r-sm);display:inline-flex;align-items:center;gap:5px}
-.type-opt.active{background:var(--forest);color:var(--bone);border-color:var(--forest)}
-.auto-calc-bar{display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--sand-light);border:1px dashed var(--forest-ghost);border-radius:var(--r-sm);margin-top:-10px;margin-bottom:14px}
-.accordion-toolbar{display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap}
-.acc-ctrl-btn{font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;padding:5px 10px;background:transparent;border:1px solid var(--forest-ghost);color:var(--forest-faint);cursor:pointer;border-radius:var(--r-sm);display:inline-flex;align-items:center;gap:5px}
-.bps-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
-.bp-card{background:var(--sand);border:1px solid var(--forest-ghost);padding:16px;border-radius:var(--r-sm)}
-
-/* ================================================
-   FOOTER
-================================================ */
-footer{margin-top:64px;padding:24px 0 16px;border-top:1px solid var(--forest);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--forest-faint)}
-footer .center{font-family:var(--serif);font-style:italic;text-transform:none;letter-spacing:0;font-size:13px;color:var(--forest-soft)}
-
-/* ================================================
-   TOAST
-================================================ */
-.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(16px);background:var(--forest);color:var(--bone);padding:10px 16px;font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;z-index:500;opacity:0;transition:.25s;pointer-events:none;border-radius:var(--r-sm);border-left:3px solid var(--clay);white-space:nowrap}
-.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-
-/* ================================================
-   MOBILE
-================================================ */
-@media(max-width:900px){
-  .home-split{grid-template-columns:1fr}
-  .shop-banner{grid-template-columns:1fr}
-  .home-stats{grid-template-columns:repeat(3,1fr)}
-}
-@media(max-width:768px){
-  .frame-inner{padding:12px 16px;gap:10px}
-  main{padding:24px 16px 80px}
-  .nav{overflow-x:auto;-webkit-overflow-scrolling:touch;flex-wrap:nowrap;gap:2px;padding-bottom:1px;scrollbar-width:none}
-  .nav::-webkit-scrollbar{display:none}
-  .brand-sub{display:none}
-  .brand-logo{height:24px} 
-  .home-hero{grid-template-columns:1fr; gap:24px; padding:16px 0 32px;}
-  .home-hero-img{max-height:300px;}
-  .field-row, .field-3{grid-template-columns:1fr}
-  .detail-title-row{flex-direction:column}
-  .modal-back{padding:0;align-items:flex-end}
-  .modal{border-radius:var(--r-lg) var(--r-lg) 0 0;max-height:92vh}
-  .grid{grid-template-columns:1fr}
-  .bps-grid{grid-template-columns:1fr}
-  .home-hero h1{font-size:40px}
-  footer{justify-content:center;text-align:center}
-  footer .center{display:none}
-}
-@media(max-width:480px){
-  .home-stats{grid-template-columns:1fr 1fr;gap:1px}
-  .home-stats .stat-box:last-child{grid-column:span 2}
-  .shop-banner h1{font-size:34px}
-  .btn{padding:8px 13px;font-size:10px}
-  .stage-big-num{font-size:42px}
-}
-::-webkit-scrollbar{width:8px} ::-webkit-scrollbar-track{background:var(--sand)} ::-webkit-scrollbar-thumb{background:var(--forest-faint);border:2px solid var(--sand);border-radius:8px}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>🏐 Beach Volley Torneo</title>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #6b3410; }
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    input[type=number] { -moz-appearance: textfield; }
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,220,80,0.3); border-radius: 2px; }
+    button { font-family: 'Trebuchet MS', sans-serif; }
+    input { font-family: 'Trebuchet MS', sans-serif; }
+  </style>
 </head>
 <body>
+  <div id="root"></div>
 
-<header class="frame">
-  <div class="frame-inner">
-    <div class="brand" onclick="goto('home')">
-      <img src="images/logo1.png" alt="Baito dell'Orso Logo" class="brand-logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-      <svg style="display:none; color:var(--clay); width:26px; height:26px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M11 5.882V19.24a1.76 1.76 0 0 1-3.417.592l-2.147-6.15M18 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-7-1a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/></svg>
-      <div>
-        <div class="brand-name">Baito<span class="dot">·</span>dell'Orso</div>
-        <div class="brand-sub">Quaderno di Campo</div>
-      </div>
-    </div>
-    <nav class="nav" id="nav">
-      <button class="nav-link active" data-route="home"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon-xs"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> Home</button>
-      <button class="nav-link" data-route="viaggiare"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon-xs"><circle cx="6" cy="19" r="3"/><path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15"/><circle cx="18" cy="5" r="3"/></svg> Viaggiare</button>
-      <button class="nav-link" data-route="shop"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon-xs"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg> Shop del Baito</button>
-    </nav>
-    <div class="nav-end">
-      <div class="sync-dot" id="sync-dot" title="Stato sync"></div>
-      <button class="btn btn-ghost btn-sm" id="auth-btn" onclick="toggleAuth()" style="display:none"></button>
-    </div>
-  </div>
-</header>
+  <script type="text/babel">
+    const { useState, useCallback, useEffect } = React;
 
-<main id="app">
-  <p style="padding:80px 0;text-align:center;font-family:var(--mono);font-size:11px;letter-spacing:.18em;color:var(--forest-faint);">CARICAMENTO…</p>
-</main>
+    const INITIAL_TEAMS = [
+      { id: 1, name: "I di...Sperati",           logo: "", color: "#e74c3c", members: ["Casagrande Lorenza","Paterno Ivo","Purin Silvia","Paterno Mara"] },
+      { id: 2, name: "Monzarella",                logo: "", color: "#f39c12", members: ["Lorenzo Rigo","Simone Sittoni Wassermann","Giacomo Gaiardo","Davide Ballin"] },
+      { id: 3, name: "Cretino Basket",            logo: "", color: "#2ecc71", members: [] },
+      { id: 4, name: "Associazione a Delinquere", logo: "", color: "#a855f7", members: [] },
+      { id: 5, name: "New York Knicks",           logo: "", color: "#38bdf8", members: ["Luca Gasperetti"] },
+      { id: 6, name: "Super Chicche",             logo: "", color: "#f472b6", members: ["Alessandra Konecni","Chiara Volpe","Angelica Moser","Anna Martinelli","Kati Stefani","Elisa Franzinelli"] },
+    ];
 
-<div class="modal-back" id="modal-back"><div class="modal" id="modal"></div></div>
-<div class="toast" id="toast"></div>
-
-<script>
-/* ================================================
-   GLOBAL DATA: PRODUCTS
-================================================ */
-const PRODUCTS=[
-  {id:'ts-classic',type:'T-Shirt',name:"Baito · Classic",desc:"Girocollo, 100% cotone organico pesante. Logo ricamato sul petto sinistro, scritta sul retro.",price:25,colors:['#1f2d1c','#ebe2cd','#b85a1f'],sizes:['S','M','L','XL','XXL'],available:true,tone:'#1f2d1c'},
-  {id:'ts-wild',type:'T-Shirt',name:"Into the Wild",desc:"Scritta bold sulla schiena. Minimal come le strade che percorriamo. 100% cotone.",price:25,colors:['#1f2d1c','#607d4d'],sizes:['S','M','L','XL'],available:true,tone:'#607d4d'},
-  {id:'fw-hoodie',type:'Felpa',name:"Baito dell'Orso · Hoodie",desc:"Felpa con cappuccio, cotone felpato 400g. Per le serate in quota e le mattine fredde.",price:45,colors:['#1f2d1c','#7a7466'],sizes:['S','M','L','XL','XXL'],available:true,tone:'#3a4d36'},
-  {id:'ts-cielo',type:'T-Shirt',name:"Mai sotto un cielo",desc:"Il motto del quaderno. Stampa grafica sul retro. Edizione limitata.",price:28,colors:['#ebe2cd','#1f2d1c'],sizes:['S','M','L','XL'],available:true,tone:'#7a7466'},
-  {id:'fw-crew',type:'Felpa',name:"Rotta Aperta · 2026",desc:"Felpa girocollo, edizione 2026. Logo ricamato. In lavorazione.",price:48,colors:['#b85a1f','#1f2d1c'],sizes:['S','M','L','XL'],available:false,tone:'#b85a1f'},
-  {id:'cap-orso',type:'Cappellino',name:"Baito · Cap",desc:"5 pannelli, regolabile. Ricamo logo frontale. Compagno fedele.",price:20,colors:['#1f2d1c','#607d4d','#ebe2cd'],sizes:['Unica'],available:true,tone:'#6a7853'}
-];
-
-/* ================================================
-   STATE
-================================================ */
-const S = {
-  itins: [], pts: [], route: { name:'home', id:null },
-  maps: {}, tile: 'topo',
-  cloud: { user:null, owner:false, synced:false },
-  shopFilter: 'all'
-};
-
-/* ================================================
-   FIREBASE
-================================================ */
-let fbReady = false;
-function initFirebase() {
-  if (!window.__firebase) return;
-  fbReady = true;
-  const fb = window.__firebase;
-  fb.onAuthStateChanged(fb.auth, async user => {
-    S.cloud.user = user;
-    S.cloud.owner = user && user.uid === window.__OWNER_UID;
-    updateAuthUI();
-    if (user) {
-      await cloudLoad();
-      cloudListen();
+    function buildMatches(teams) {
+      const ms = [];
+      let id = 1;
+      for (let i = 0; i < teams.length; i++)
+        for (let j = i + 1; j < teams.length; j++)
+          ms.push({ id: id++, home: teams[i].id, away: teams[j].id,
+                    s1h:"", s1a:"", s2h:"", s2a:"", played: false });
+      return ms;
     }
-    render();
-  });
-}
-async function cloudLoad() {
-  if (!window.__firebase) return;
-  const fb = window.__firebase;
-  const snap = await fb.getDoc(fb.doc(fb.db,'public_data','shared_base'));
-  if (snap.exists()) {
-    const d = snap.data();
-    if (Array.isArray(d.itineraries)) S.itins = d.itineraries;
-    if (Array.isArray(d.points)) S.pts = d.points;
-    local('save');
-    S.cloud.synced = true; updateSyncDot(); render();
-  } else if (S.cloud.owner) {
-    await cloudSave();
-  }
-}
-function cloudListen() {
-  if (!window.__firebase) return;
-  const fb = window.__firebase;
-  fb.onSnapshot(fb.doc(fb.db,'public_data','shared_base'), snap => {
-    if (!snap.exists()) return;
-    const d = snap.data();
-    const ni = JSON.stringify(d.itineraries||[]), ci = JSON.stringify(S.itins);
-    if (ni !== ci || JSON.stringify(d.points||[]) !== JSON.stringify(S.pts)) {
-      if (Array.isArray(d.itineraries)) S.itins = d.itineraries;
-      if (Array.isArray(d.points)) S.pts = d.points;
-      local('save'); render();
+
+    function shuffle(arr) {
+      const a = [...arr];
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
     }
-    S.cloud.synced = true; updateSyncDot();
-  });
-}
-async function cloudSave() {
-  if (!window.__firebase || !S.cloud.owner) return;
-  const fb = window.__firebase;
-  await fb.setDoc(fb.doc(fb.db,'public_data','shared_base'), {
-    itineraries: S.itins, points: S.pts, updatedAt: fb.serverTimestamp()
-  }, {merge:true});
-  S.cloud.synced = true; updateSyncDot();
-}
-async function toggleAuth() {
-  if (!window.__firebase) return;
-  const fb = window.__firebase;
-  if (S.cloud.user) { await fb.signOut(fb.auth); toast('Logout'); }
-  else { try { await fb.signInWithPopup(fb.auth, fb.provider); } catch(e){} }
-}
-function updateAuthUI() {
-  const btn = document.getElementById('auth-btn');
-  if (!fbReady) { btn.style.display='none'; return; }
-  btn.style.display = 'inline-flex';
-  btn.textContent = S.cloud.user ? 'Esci' : 'Login';
-}
-function updateSyncDot() {
-  const dot = document.getElementById('sync-dot');
-  dot.className = 'sync-dot' + (S.cloud.owner ? ' owner' : (S.cloud.synced ? ' ok' : ''));
-}
 
-/* ================================================
-   LOCAL STORAGE
-================================================ */
-function local(cmd) {
-  if (cmd === 'load') {
-    S.itins = JSON.parse(localStorage.getItem('baito_v2_itins') || '[]');
-    S.pts   = JSON.parse(localStorage.getItem('baito_v2_pts')   || '[]');
-  } else {
-    localStorage.setItem('baito_v2_itins', JSON.stringify(S.itins));
-    localStorage.setItem('baito_v2_pts',   JSON.stringify(S.pts));
-  }
-}
-async function persist() {
-  local('save');
-  if (S.cloud.owner) await cloudSave();
-}
-
-/* ================================================
-   UTILITIES
-================================================ */
-function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
-function toast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.classList.add('show');
-  clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('show'), 2000);
-}
-function esc(s) { if(s==null)return''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
-function nl2br(s) { return esc(s).replace(/\n/g,'<br>'); }
-function fmtDate(iso) { if(!iso)return'—'; try{return new Date(iso).toLocaleDateString('it-IT',{day:'2-digit',month:'short',year:'numeric'}).toUpperCase();}catch{return'—';} }
-function ri() { requestAnimationFrame(()=>{ if(window.lucide)window.lucide.createIcons(); }); }
-
-/* ================================================
-   PARSE COORDS
-================================================ */
-function parseCoords(s) {
-  if (!s || typeof s !== 'string') return null;
-  s = s.trim();
-  const url = s.match(/@(-?\d+\.?\d*),(-?\d+\.?\d*)/);
-  if (url) return [+url[1], +url[2]];
-  const dec = s.match(/^(-?\d+(?:\.\d+)?)\s*[,;\s]+(-?\d+(?:\.\d+)?)$/);
-  if (dec) { const la=+dec[1],lo=+dec[2]; if(Math.abs(la)<=90&&Math.abs(lo)<=180)return[la,lo]; }
-  const dms = s.match(/(\d+(?:\.\d+)?)[°]\s*(?:(\d+(?:\.\d+)?)['\u2032]?\s*)?(?:(\d+(?:\.\d+)?)["\u2033]?\s*)?([NSns])\s*[\s\u00B7,;]+\s*(\d+(?:\.\d+)?)[°]\s*(?:(\d+(?:\.\d+)?)['\u2032]?\s*)?(?:(\d+(?:\.\d+)?)["\u2033]?\s*)?([EWew])/);
-  if (dms) {
-    const la=(+dms[1]+(+dms[2]||0)/60+(+dms[3]||0)/3600)*(/s/i.test(dms[4])?-1:1);
-    const lo=(+dms[5]+(+dms[6]||0)/60+(+dms[7]||0)/3600)*(/w/i.test(dms[8])?-1:1);
-    if(!isNaN(la)&&!isNaN(lo))return[la,lo];
-  }
-  return null;
-}
-
-/* ================================================
-   MAPS
-================================================ */
-const TILES = {
-  topo:{ url:'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', attr:'© Esri' },
-  sat: { url:'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', attr:'© Esri Imagery' }
-};
-function destroyMap(id) { if(S.maps[id]){try{S.maps[id].remove();}catch(e){}delete S.maps[id];} }
-function initMap(id, markers, opts={}) {
-  if(typeof L==='undefined')return;
-  destroyMap(id);
-  const el = document.getElementById(id);
-  if (!el) return;
-  const valid = markers.filter(m=>m.coords);
-  if (!valid.length) {
-    el.innerHTML = `<div class="map-empty"><i data-lucide="map-off" class="icon-lg"></i><div>Nessuna coordinata disponibile.</div><div style="font-size:9px;margin-top:4px">Inserisci le coordinate in formato: 46.12, 11.45</div></div>`;
-    ri(); return;
-  }
-  const map = L.map(id, {zoomControl:true,scrollWheelZoom:false});
-  map.on('click',()=>map.scrollWheelZoom.enable());
-  map.on('mouseout',()=>map.scrollWheelZoom.disable());
-  const tileLayers = {
-    topo: L.tileLayer(TILES.topo.url,{maxZoom:19,attribution:TILES.topo.attr}),
-    sat:  L.tileLayer(TILES.sat.url, {maxZoom:19,attribution:TILES.sat.attr})
-  };
-  tileLayers[S.tile].addTo(map);
-  S.maps[id] = map; S.maps[id]._tl = tileLayers; S.maps[id]._at = S.tile;
-  const lls = [];
-  valid.forEach((m,i) => {
-    const cls = 'map-marker is-'+(m.type||'travel');
-    const lbl = opts.isPoint ? '★' : String(i+1).padStart(2,'0');
-    const icon = L.divIcon({className:'',html:`<div class="${cls}">${lbl}</div>`,iconSize:[34,34],iconAnchor:[17,17]});
-    const mk = L.marker(m.coords, {icon}).addTo(map);
-    if (m.popup) mk.bindPopup(m.popup);
-    lls.push(m.coords);
-  });
-  if (opts.connect && lls.length>1) L.polyline(lls,{color:'#1f2d1c',weight:2,opacity:.6,dashArray:'6,6'}).addTo(map);
-  lls.length===1 ? map.setView(lls[0],11) : map.fitBounds(lls,{padding:[40,40],maxZoom:13});
-}
-function switchTile(mapId, t) {
-  const map = S.maps[mapId]; if(!map)return;
-  map.removeLayer(map._tl[map._at]);
-  map._tl[t].addTo(map); map._at=t; S.tile=t;
-  document.querySelectorAll(`[data-map="${mapId}"] button`).forEach(b=>b.classList.toggle('active',b.dataset.tile===t));
-}
-
-/* ================================================
-   ROUTING
-================================================ */
-function goto(name,id=null) {
-  S.route={name,id};
-  const h = id?`#${name}/${id}`:`#${name}`;
-  if(location.hash!==h) location.hash=h;
-  render();
-}
-function parseHash() {
-  const h=(location.hash||'').replace(/^#/,'');
-  if(!h)return{name:'home',id:null};
-  const[n,i]=h.split('/');
-  return{name:n||'home',id:i||null};
-}
-window.addEventListener('hashchange',()=>{S.route=parseHash();render();});
-
-/* ================================================
-   AUTO CALCULATOR & STAGE LOGIC
-================================================ */
-function autoCalc() { /* ... */ }
-function resetAutoCalc() { /* ... */ }
-const STAGE_TYPES=[{id:'travel',label:'Viaggio'},{id:'relax',label:'Relax'},{id:'beach',label:'Spiaggia'},{id:'viewpoint',label:'Panorama'},{id:'adventure',label:'Avventura'},{id:'activity',label:'Attività'},{id:'evening',label:'Serata'},{id:'exploration',label:'Esplorazione'},{id:'history',label:'Storia'},{id:'food',label:'Cibo'}];
-const TRAVEL_MODES=[{id:'car',label:'Auto'},{id:'moto',label:'Moto'},{id:'ferry',label:'Traghetto'},{id:'plane',label:'Aereo'},{id:'train',label:'Treno'},{id:'bus',label:'Bus'}];
-function typeLabel(t){return STAGE_TYPES.find(x=>x.id===t)?.label||t;}
-
-function toggleAcc(btn){ const acc=btn.closest('.stage-acc'); const isOpen=acc.classList.contains('open'); acc.classList.toggle('open',!isOpen); acc.classList.toggle('closed',isOpen); updateAccSummary(acc); }
-function updateAccSummary(acc){ const sum=acc.querySelector('.stage-acc-summary'); if(!sum)return; const type=acc.dataset.type||'travel'; if(type==='travel'){ const f=acc.querySelector('.s-from')?.value,t=acc.querySelector('.s-to')?.value; sum.textContent=(f||t)?`${f||'?'} → ${t||'?'}`:''; sum.classList.toggle('empty',!f&&!t); } else { const n=acc.querySelector('.s-name')?.value; sum.textContent=n||''; sum.classList.toggle('empty',!n); } }
-function pickType(btn,stageId){ const acc=document.querySelector(`.stage-acc[data-id="${stageId}"]`); if(!acc)return; const t=btn.dataset.type; acc.dataset.type=t; acc.className='stage-acc open '+(t==='travel'?'is-travel':'is-activity'); acc.querySelectorAll('.type-opt').forEach(b=>b.classList.toggle('active',b.dataset.type===t)); updateAccSummary(acc); ri(); }
-function pickMode(btn,stageId){ const acc=document.querySelector(`.stage-acc[data-id="${stageId}"]`); if(!acc)return; acc.dataset.mode=btn.dataset.mode; acc.querySelectorAll('.mode-opt').forEach(b=>b.classList.toggle('active',b.dataset.mode===btn.dataset.mode)); }
-function openAllAcc(){ document.querySelectorAll('.stage-acc').forEach(a=>{a.classList.add('open');a.classList.remove('closed');}); }
-function closeAllAcc(){ document.querySelectorAll('.stage-acc').forEach(a=>{a.classList.remove('open');a.classList.add('closed');updateAccSummary(a);}); }
-
-function stageAccHtml(s,i){ 
-  const t=s.type||'travel',isTravel=t==='travel';
-  const tm=s.travelMode||'car';
-  const summary=isTravel?(s.fromPlace&&s.toPlace?`${s.fromPlace} → ${s.toPlace}`:''):(s.name||'');
-  return `
-  <div class="stage-acc ${i===0?'open':'closed'} ${isTravel?'is-travel':'is-activity'}" data-id="${esc(s.id)}" data-type="${t}" data-mode="${tm}">
-    <div class="stage-acc-head">
-      <div class="stage-acc-toggle" onclick="toggleAcc(this)"><i data-lucide="chevron-down" class="icon-xs"></i></div>
-      <div class="stage-acc-num" onclick="toggleAcc(this.parentElement.querySelector('.stage-acc-toggle'))">Tappa ${String(i+1).padStart(2,'0')}</div>
-      <div class="stage-acc-summary${summary?'':' empty'}" onclick="toggleAcc(this.parentElement.querySelector('.stage-acc-toggle'))">${esc(summary)||'—'}</div>
-      <button type="button" class="stage-acc-del" onclick="removeStage('${esc(s.id)}')"><i data-lucide="x" class="icon-xs"></i></button>
-    </div>
-    <div class="stage-acc-body">
-      <div class="field-row" style="margin-bottom:10px">
-        <div class="field" style="margin-bottom:0"><label>Giorno #</label><input type="number" min="1" class="s-day" value="${s.day||i+1}" placeholder="1"></div>
-        <div class="field" style="margin-bottom:0"><label>Data specifica (opz.)</label><input type="date" class="s-date" value="${s.stageDate||''}"></div>
-      </div>
-      <div class="field" style="margin-bottom:8px"><label>Tipo tappa</label>
-        <div class="type-picker">${STAGE_TYPES.map(tp=>`<button type="button" class="type-opt${tp.id===t?' active':''}" data-type="${tp.id}" onclick="pickType(this,'${esc(s.id)}')">${tp.label}</button>`).join('')}</div>
-      </div>
-      <div class="travel-fields">
-        <div class="field" style="margin-bottom:8px"><label>Mezzo</label>
-          <div class="type-picker">${TRAVEL_MODES.map(m=>`<button type="button" class="type-opt mode-opt${m.id===tm?' active':''}" data-mode="${m.id}" onclick="pickMode(this,'${esc(s.id)}')">${m.label}</button>`).join('')}</div>
-        </div>
-        <div class="field-row"><div class="field" style="margin-bottom:8px"><label>Partenza</label><input type="text" class="s-from" value="${esc(s.fromPlace||'')}" oninput="updateAccSummary(this.closest('.stage-acc'))"></div><div class="field" style="margin-bottom:8px"><label>Arrivo</label><input type="text" class="s-to" value="${esc(s.toPlace||'')}" oninput="updateAccSummary(this.closest('.stage-acc'))"></div></div>
-        <div class="field-row field-3"><div class="field" style="margin-bottom:8px"><label>Km</label><input type="text" class="s-distance" value="${esc(s.distance||'')}"></div><div class="field" style="margin-bottom:8px"><label>Ore</label><input type="text" class="s-hours" value="${esc(s.hours||'')}"></div><div class="field" style="margin-bottom:8px"><label>Costo</label><input type="text" class="s-cost" value="${esc(s.cost||'')}"></div></div>
-      </div>
-      <div class="activity-fields">
-        <div class="field" style="margin-bottom:8px"><label>Nome / Titolo</label><input type="text" class="s-name" value="${esc(s.name||'')}" oninput="updateAccSummary(this.closest('.stage-acc'))"></div>
-        <div class="field-row"><div class="field" style="margin-bottom:8px"><label>Fascia</label><select class="s-timeslot"><option value="">—</option><option value="morning"${s.timeSlot==='morning'?' selected':''}>Mattina</option><option value="afternoon"${s.timeSlot==='afternoon'?' selected':''}>Pomeriggio</option><option value="evening"${s.timeSlot==='evening'?' selected':''}>Sera</option><option value="night"${s.timeSlot==='night'?' selected':''}>Notte</option><option value="fullday"${s.timeSlot==='fullday'?' selected':''}>Giornata Intera</option></select></div><div class="field" style="margin-bottom:8px"><label>Durata</label><input type="text" class="s-duration" value="${esc(s.duration||'')}"></div></div>
-      </div>
-      <div class="field" style="margin-bottom:8px"><label>Coordinate (GMaps)</label><input type="text" class="s-coords" value="${esc(s.coords||'')}"></div>
-      <div class="field" style="margin-bottom:0"><label>Note / Descrizione</label><textarea class="s-notes">${esc(s.notes||'')}</textarea></div>
-    </div>
-  </div>`;
-}
-
-function removeStage(sid){ const a=document.querySelector(`.stage-acc[data-id="${sid}"]`); if(a&&confirm('Eliminare questa tappa?')){a.remove();autoCalc();reNumberStages();} }
-function reNumberStages(){ document.querySelectorAll('.stage-acc').forEach((a,i)=>{ const n=a.querySelector('.stage-acc-num'); if(n)n.textContent=`Tappa ${String(i+1).padStart(2,'0')}`; }); }
-
-function collectStages(){
-  return Array.from(document.querySelectorAll('.stage-acc')).map((a,i)=>{
-    const t=a.dataset.type||'travel',isT=t==='travel';
-    return {
-      id: a.dataset.id||uid(), day: parseInt(a.querySelector('.s-day')?.value)||i+1,
-      stageDate: a.querySelector('.s-date')?.value||'', type: t, travelMode: a.dataset.mode||'car',
-      fromPlace: isT?(a.querySelector('.s-from')?.value||''):'', toPlace: isT?(a.querySelector('.s-to')?.value||''):'',
-      distance: isT?(a.querySelector('.s-distance')?.value||''):'', hours: isT?(a.querySelector('.s-hours')?.value||''):'',
-      cost: isT?(a.querySelector('.s-cost')?.value||''):'', name: !isT?(a.querySelector('.s-name')?.value||''):'',
-      timeSlot: !isT?(a.querySelector('.s-timeslot')?.value||''):'', duration: !isT?(a.querySelector('.s-duration')?.value||''):'',
-      coords: a.querySelector('.s-coords')?.value||'', notes: a.querySelector('.s-notes')?.value||''
-    };
-  });
-}
-
-function calcTotals(stops){
-  let km=0,min=0,cost=0,hk=false,hh=false,hc=false;
-  (stops||[]).forEach(s=>{
-    if(s.type==='travel'){
-      if(s.distance){const m=s.distance.match(/[\d.,]+/);if(m){km+=parseFloat(m[0].replace(',','.'))||0;hk=true;}}
-      if(s.hours){ const mh=s.hours.match(/(\d+):(\d+)/); if(mh){min+=parseInt(mh[1])*60+parseInt(mh[2]);hh=true;} else{const m2=s.hours.match(/[\d.,]+/);if(m2){min+=parseFloat(m2[0].replace(',','.'))*60||0;hh=true;}} }
-      if(s.cost){const m=s.cost.match(/[\d.,]+/);if(m){cost+=parseFloat(m[0].replace(',','.'))||0;hc=true;}}
+    function matchResult(m) {
+      const [s1h,s1a,s2h,s2a] = [m.s1h,m.s1a,m.s2h,m.s2a].map(Number);
+      if ([s1h,s1a,s2h,s2a].some(isNaN)) return null;
+      return {
+        sH: (s1h>s1a?1:0)+(s2h>s2a?1:0),
+        sA: (s1a>s1h?1:0)+(s2a>s2h?1:0),
+      };
     }
-  });
-  const h=Math.floor(min/60),m=Math.round(min%60);
-  return{km,hoursStr:m>0?`${h}h ${m}m`:`${h}h`,cost,hasKm:hk,hasHours:hh,hasCost:hc};
-}
-function totalAllKm(){
-  let s=0; S.itins.forEach(it=>{ const t=calcTotals(it.stops); if(t.hasKm)s+=t.km; else if(it.distance){const m=it.distance.match(/[\d.,]+/);if(m)s+=parseFloat(m[0].replace(',','.'))||0;} }); return Math.round(s);
-}
 
-function toneFor(type){return{travel:'#3a4d36',relax:'#607d4d',beach:'#b88d1f',viewpoint:'#4f7378',adventure:'#b85a1f',activity:'#87904e',evening:'#6e4470',exploration:'#87904e',history:'#7a7466',food:'#b85a1f'}[type]||'#6a7853';}
-const STATUS_LABELS={draft:'In Bozza',active:'In Corso',completed:'Concluso',filed:'Archiviato'};
+    function standings(matches, teams) {
+      const st = {};
+      teams.forEach(t => { st[t.id]={id:t.id,G:0,V:0,P:0,SV:0,SP:0,Pts:0}; });
+      matches.forEach(m => {
+        if (!m.played) return;
+        const r = matchResult(m); if (!r) return;
+        st[m.home].G++; st[m.away].G++;
+        st[m.home].SV+=r.sH; st[m.home].SP+=r.sA;
+        st[m.away].SV+=r.sA; st[m.away].SP+=r.sH;
+        if (r.sH>r.sA) { st[m.home].V++; st[m.home].Pts+=3; st[m.away].P++; st[m.away].Pts+=1; }
+        else if (r.sA>r.sH) { st[m.away].V++; st[m.away].Pts+=3; st[m.home].P++; st[m.home].Pts+=1; }
+        else { st[m.home].Pts+=2; st[m.away].Pts+=2; }
+      });
+      return Object.values(st).sort((a,b)=>b.Pts-a.Pts||(b.SV-b.SP)-(a.SV-a.SP));
+    }
 
-/* ================================================
-   DRAG TO SCROLL (per Vetrina Home su desktop)
-================================================ */
-function attachDragScroll(slider) {
-  let isDown = false; let startX; let scrollLeft;
-  slider.addEventListener('mousedown', (e) => { isDown = true; startX = e.pageX - slider.offsetLeft; scrollLeft = slider.scrollLeft; });
-  slider.addEventListener('mouseleave', () => { isDown = false; });
-  slider.addEventListener('mouseup', () => { isDown = false; });
-  slider.addEventListener('mousemove', (e) => {
-    if (!isDown) return; e.preventDefault();
-    const x = e.pageX - slider.offsetLeft; const walk = (x - startX) * 2; slider.scrollLeft = scrollLeft - walk;
-  });
-}
+    function probabilities(odds, teams) {
+      let tot = 0;
+      const imp = {};
+      teams.forEach(t => {
+        const q = parseFloat(odds[t.id]);
+        imp[t.id] = (q>0) ? 1/q : 0;
+        tot += imp[t.id];
+      });
+      return teams
+        .map(t => ({ id: t.id, prob: tot>0 ? (imp[t.id]/tot)*100 : 0 }))
+        .sort((a,b)=>b.prob-a.prob);
+    }
 
-/* ================================================
-   RENDER ENGINE
-================================================ */
-function render(){
-  const app=document.getElementById('app');
-  document.querySelectorAll('.nav-link').forEach(b=>{
-    const active=b.dataset.route===S.route.name ||(S.route.name==='itinerary'&&b.dataset.route==='viaggiare') ||(S.route.name==='point'&&b.dataset.route==='viaggiare');
-    b.classList.toggle('active',active);
-    b.onclick=()=>goto(b.dataset.route);
-  });
-  switch(S.route.name){
-    case 'home':    renderHome(app); break;
-    case 'viaggiare': renderViaggiare(app); break;
-    case 'itinerary': renderItinerary(app,S.route.id); break;
-    case 'point':   renderPoint(app,S.route.id); break;
-    case 'shop':    renderShop(app); break;
-    default: renderHome(app);
-  }
-  ri();
-  // Attach scroll
-  const scroller = document.querySelector('.shop-scroller');
-  if(scroller) attachDragScroll(scroller);
-}
+    /* ── small reusable pieces ── */
+    function Logo({ logo, name, color, size=36 }) {
+      const [err, setErr] = useState(false);
+      if (logo && !err)
+        return <img src={logo} alt={name} onError={()=>setErr(true)}
+                 style={{width:size,height:size,borderRadius:"50%",objectFit:"cover",
+                         border:`2px solid ${color}`,flexShrink:0}} />;
+      return (
+        <div style={{width:size,height:size,borderRadius:"50%",background:`${color}44`,
+                     border:`2px solid ${color}`,display:"flex",alignItems:"center",
+                     justifyContent:"center",fontSize:Math.round(size*.38),color,
+                     fontWeight:900,flexShrink:0,userSelect:"none"}}>
+          {name.charAt(0).toUpperCase()}
+        </div>
+      );
+    }
 
-/* ---- HOME ---- */
-function renderHome(root){
-  const recent5i=[...S.itins].sort((a,b)=>new Date(b.dateAdded)-new Date(a.dateAdded)).slice(0,6);
-  const recent5p=[...S.pts].sort((a,b)=>new Date(b.dateAdded)-new Date(a.dateAdded)).slice(0,5);
-  const km=totalAllKm();
-  const stops=S.itins.reduce((a,it)=>a+(it.stops?.length||0),0);
-  
-  // VERIFICA MASTER: Mostra i bottoni Nuovo solo al proprietario
-  const isAdmin = S.cloud.owner; 
+    function NumInput({ value, onChange, placeholder, style={} }) {
+      return <input type="number" min="0" max="99" value={value}
+               onChange={e=>onChange(e.target.value)} placeholder={placeholder}
+               style={{textAlign:"center",background:"rgba(0,0,0,0.65)",
+                       border:"2px solid rgba(255,200,100,0.4)",borderRadius:8,
+                       color:"#fff",fontWeight:900,outline:"none",...style}} />;
+    }
 
-  root.innerHTML=`
-  <div class="home-hero">
-    <div>
-      <h1>Un quaderno<br>per chi va<br><em>lontano.</em></h1>
-      <p>Itinerari in tenda da tetto, punti di riferimento, notti sotto un cielo che non si conosce. Tutto annotato.</p>
-      <div class="btns">
-        <button class="btn btn-primary" onclick="goto('viaggiare')"><i data-lucide="route" class="icon-sm"></i> Sfoglia i Viaggi</button>
-        <button class="btn btn-clay" onclick="goto('shop')"><i data-lucide="shirt" class="icon-sm"></i> Shop del Baito</button>
-      </div>
-    </div>
-    <div>
-      <img src="images/homepage.png" alt="Copertina Baito" class="home-hero-img" onerror="this.src='https://images.unsplash.com/photo-1721820423248-a43d75928082?q=80&w=1632&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'">
-    </div>
-  </div>
-  
-  <div class="home-stats">
-    <div class="stat-box"><div class="stat-label"><i data-lucide="route" class="icon-xs"></i> Viaggi Pianificati</div><div class="stat-value">${S.itins.length}</div></div>
-    <div class="stat-box"><div class="stat-label"><i data-lucide="map-pin" class="icon-xs"></i> Tappe Totali</div><div class="stat-value">${stops}</div></div>
-    <div class="stat-box"><div class="stat-label"><i data-lucide="ruler" class="icon-xs"></i> Km Pianificati</div><div class="stat-value">${km>0?km.toLocaleString('it-IT'):0}<span class="unit">km</span></div></div>
-  </div>
-  <div class="home-split">
-    <div>
-      <div class="home-section-title">
-        Itinerari
-        <span class="more" onclick="goto('viaggiare')">Vedi tutti <i data-lucide="arrow-right" class="icon-xs"></i></span>
-      </div>
-      ${recent5i.length===0?`<p class="no-items">Nessun itinerario. ${isAdmin?`<button class="btn btn-ghost btn-sm" onclick="openItinModal()"><i data-lucide="plus" class="icon-xs"></i> Aggiungi</button>`:''}</p>`
-      :recent5i.map(it=>{
-        const t=calcTotals(it.stops);
-        const dist=it.distance||(t.hasKm?Math.round(t.km)+' km':'');
-        const bg=toneFor(it.stops?.[0]?.type||'travel');
-        return`<div class="trip-row" onclick="goto('itinerary','${it.id}')">
-          <div class="trip-row-icon" style="background:${bg}20;color:${bg}"><i data-lucide="route" class="icon-sm"></i></div>
-          <div class="trip-row-info">
-            <div class="trip-row-title">${esc(it.title)}</div>
-            <div class="trip-row-meta"><i data-lucide="map-pin" style="width:10px;height:10px;"></i>${esc(it.region||'—')}${dist?` · ${esc(dist)}`:''}${it.duration?` · ${esc(it.duration)}`:''}</div>
+    /* ═══════════════════════════════════════════════════════════════
+       MAIN APP
+    ═══════════════════════════════════════════════════════════════ */
+    function App() {
+
+      /* ── persisted state ── */
+      const load = (key, fallback) => { try { const s=localStorage.getItem(key); return s?JSON.parse(s):fallback; } catch{return fallback;} };
+
+      const [teams,   setTeams]   = useState(()=>load('bv_teams',   INITIAL_TEAMS));
+      const [matches, setMatches] = useState(()=>load('bv_matches', buildMatches(INITIAL_TEAMS)));
+      const [odds,    setOdds]    = useState(()=>load('bv_odds',    {}));
+
+      useEffect(()=>{ try{localStorage.setItem('bv_teams',   JSON.stringify(teams));}   catch{} }, [teams]);
+      useEffect(()=>{ try{localStorage.setItem('bv_matches', JSON.stringify(matches));} catch{} }, [matches]);
+      useEffect(()=>{ try{localStorage.setItem('bv_odds',    JSON.stringify(odds));}    catch{} }, [odds]);
+
+      /* ── UI state ── */
+      const [tab,       setTab]       = useState("calendario");
+      const [openMatch, setOpenMatch] = useState(null);
+      const [openTeam,  setOpenTeam]  = useState(null);
+      const [editLogo,  setEditLogo]  = useState(null);
+      const [logoVal,   setLogoVal]   = useState("");
+      const [editMbr,   setEditMbr]   = useState(null);   // {teamId,idx}
+      const [mbrVal,    setMbrVal]    = useState("");
+
+      const byId = useCallback(id=>teams.find(t=>t.id===id), [teams]);
+
+      /* ── match helpers ── */
+      const randomize = ()=> setMatches(prev=>shuffle(prev).map((m,i)=>({...m,id:i+1})));
+
+      const setScore = (mid, field, val) =>
+        setMatches(prev=>prev.map(m=>{
+          if(m.id!==mid) return m;
+          const u={...m,[field]:val};
+          u.played=[u.s1h,u.s1a,u.s2h,u.s2a].every(v=>v!==""&&!isNaN(Number(v)));
+          return u;
+        }));
+
+      /* ── logo helpers ── */
+      const saveLogo = teamId => {
+        setTeams(prev=>prev.map(t=>t.id===teamId?{...t,logo:logoVal.trim()}:t));
+        setEditLogo(null); setLogoVal("");
+      };
+
+      /* ── member helpers ── */
+      const saveMbr = (teamId, idx) => {
+        setTeams(prev=>prev.map(t=>{
+          if(t.id!==teamId) return t;
+          const members=[...t.members]; members[idx]=mbrVal.trim()||"";
+          return {...t,members};
+        }));
+        setEditMbr(null);
+      };
+      const addMbr = teamId =>
+        setTeams(prev=>prev.map(t=>t.id===teamId?{...t,members:[...t.members,""]}:t));
+      const delMbr = (teamId,idx) =>
+        setTeams(prev=>prev.map(t=>t.id!==teamId?t:{...t,members:t.members.filter((_,i)=>i!==idx)}));
+
+      /* ── reset ── */
+      const reset = ()=>{
+        if(!window.confirm("Resettare tutto il torneo?")) return;
+        setTeams(INITIAL_TEAMS); setMatches(buildMatches(INITIAL_TEAMS)); setOdds({});
+        localStorage.clear();
+      };
+
+      /* ── derived data ── */
+      const table  = standings(matches, teams);
+      const probs  = probabilities(odds, teams);
+      const played = matches.filter(m=>m.played).length;
+
+      /* ── style helpers ── */
+      const card = (ex={})=>({
+        background:"rgba(0,0,0,0.58)",
+        border:"1.5px solid rgba(255,200,100,0.22)",
+        borderRadius:14, ...ex
+      });
+      const btn = (bg,color="#fff",ex={})=>({
+        padding:"7px 13px", background:bg, border:"none",
+        borderRadius:20, color, fontWeight:800, fontSize:12,
+        cursor:"pointer", ...ex
+      });
+
+      /* ── TABS ── */
+      const TABS=[["calendario","📅 Partite"],["classifica","🏆 Classifica"],["squadre","👥 Squadre"],["scommesse","🎲 Scommesse"]];
+
+      return (
+        <div style={{minHeight:"100vh",background:"linear-gradient(160deg,#8b3a12 0%,#b5651d 30%,#c8882a 55%,#9a5015 80%,#6b2f0e 100%)",fontFamily:"'Trebuchet MS',sans-serif",color:"#fff"}}>
+
+          {/* ── HEADER ── */}
+          <div style={{background:"linear-gradient(180deg,rgba(0,55,135,0.97) 0%,rgba(0,100,200,0.88) 100%)",padding:"22px 20px 18px",textAlign:"center",borderBottom:"4px solid rgba(255,220,80,0.7)"}}>
+            <div style={{fontSize:11,letterSpacing:5,color:"#ffe066",textTransform:"uppercase"}}>🏖️ Torneo</div>
+            <div style={{fontSize:26,fontWeight:900,letterSpacing:1,textShadow:"0 2px 10px rgba(0,0,0,0.5)"}}>BEACH VOLLEY 🏐</div>
+            <div style={{fontSize:12,color:"#ffe066",fontStyle:"italic",marginTop:2}}>Girone All'Italiana · 6 Squadre · 15 Partite</div>
+            <div style={{maxWidth:280,margin:"12px auto 0"}}>
+              <div style={{display:"flex",justifyContent:"space-between",fontSize:11,color:"rgba(255,255,255,0.55)",marginBottom:4}}>
+                <span>{played} giocate</span><span>{matches.length-played} rimaste</span>
+              </div>
+              <div style={{height:6,background:"rgba(255,255,255,0.18)",borderRadius:3}}>
+                <div style={{height:"100%",width:`${(played/matches.length)*100}%`,background:"linear-gradient(90deg,#ffe066,#ff9500)",borderRadius:3,transition:"width .5s"}}/>
+              </div>
+            </div>
           </div>
-          <span class="status-badge status-${it.status||'draft'}">${STATUS_LABELS[it.status||'draft']}</span>
-          <i data-lucide="arrow-right" class="icon-sm trip-arrow"></i>
-        </div>`;
-      }).join('')}
-      ${isAdmin ? `<div style="margin-top:16px"><button class="btn btn-primary btn-sm" onclick="openItinModal()"><i data-lucide="plus" class="icon-sm"></i> Nuovo Viaggio</button></div>` : ''}
-    </div>
-    <div>
-      <div class="home-section-title">
-        Punti di Riferimento
-        <span class="more" onclick="goto('punti')">Vedi tutti <i data-lucide="arrow-right" class="icon-xs"></i></span>
-      </div>
-      ${recent5p.length===0?`<p class="no-items">Nessun punto. ${isAdmin?`<button class="btn btn-ghost btn-sm" onclick="openPointModal()"><i data-lucide="plus" class="icon-xs"></i> Aggiungi</button>`:''}</p>`
-      :recent5p.map(p=>`<div class="trip-row" onclick="goto('point','${p.id}')">
-        <div class="trip-row-icon" style="background:#b85a1f20;color:#b85a1f"><i data-lucide="map-pin" class="icon-sm"></i></div>
-        <div class="trip-row-info">
-          <div class="trip-row-title">${esc(p.title)}</div>
-          <div class="trip-row-meta"><i data-lucide="map-pin" style="width:10px;height:10px;"></i>${esc(p.region||'—')}${p.bestPoints?.length?` · ${p.bestPoints.length} best points`:''}</div>
-        </div>
-        <i data-lucide="arrow-right" class="icon-sm trip-arrow"></i>
-      </div>`).join('')}
-      ${isAdmin ? `<div style="margin-top:16px"><button class="btn btn-clay btn-sm" onclick="openPointModal()"><i data-lucide="plus" class="icon-sm"></i> Nuovo Punto</button></div>` : ''}
-    </div>
-  </div>
-  
-  <div style="margin-top: 64px;">
-    <div class="sec-head" style="margin-bottom: 20px;">
-      <h2>Vetrina del Baito</h2>
-      <span class="more" onclick="goto('shop')" style="cursor:pointer; font-family:var(--mono); font-size:9px; letter-spacing:.16em; color:var(--clay); text-transform:uppercase; font-weight:500;">Vai allo Shop →</span>
-    </div>
-    <div class="shop-scroller" title="Trascina con il mouse per scorrere">
-      ${PRODUCTS.map(p=>{
-        const bg=p.tone+'15';
-        return`<div class="product-card${p.available?'':' coming-soon'}" onclick="goto('shop')">
-          <div class="product-visual" style="background:${bg};color:${p.tone}">
-            <i data-lucide="shirt" style="width:60px;height:60px;stroke-width:1;opacity:.5"></i>
-            <span class="product-type-badge">${esc(p.type)}</span>
-            ${!p.available?`<span class="product-cs-badge">Presto</span>`:''}
+
+          {/* ── FORMAT STRIP ── */}
+          <div style={{background:"rgba(0,0,0,0.55)",padding:"8px 12px",display:"flex",justifyContent:"center",gap:18,flexWrap:"wrap"}}>
+            {[["⏱️ Set 1","5 min"],["🔄 Pausa","2 min"],["⏱️ Set 2","5 min"],["📋 Totale","~15 min"]].map(([l,v])=>(
+              <div key={l} style={{textAlign:"center",fontSize:12}}>
+                <div style={{color:"#ffe066",fontWeight:700}}>{l}</div>
+                <div style={{color:"rgba(255,255,255,0.65)"}}>{v}</div>
+              </div>
+            ))}
           </div>
-          <div class="product-body">
-            <div class="product-name" style="font-size:16px">${esc(p.name)}</div>
-            <div class="product-price" style="font-size:16px; margin:2px 0 0"><span class="cur">€</span>${p.price}</div>
+
+          {/* ── TABS ── */}
+          <div style={{display:"flex",justifyContent:"center",gap:6,padding:"12px 10px 0",flexWrap:"wrap"}}>
+            {TABS.map(([key,label])=>(
+              <button key={key} onClick={()=>setTab(key)}
+                style={{...btn(tab===key?"#ffe066":"rgba(0,0,0,0.45)",tab===key?"#333":"#fff"),
+                        border:`2px solid ${tab===key?"#ffe066":"rgba(255,255,255,0.2)"}`,
+                        borderRadius:20,transition:"all .2s"}}>
+                {label}
+              </button>
+            ))}
           </div>
-        </div>`;
-      }).join('')}
-    </div>
-  </div>
 
-  <footer><div class="left"><i data-lucide="mountain-snow" class="icon-sm"></i> BAITO DELL'ORSO · v2.0</div><div class="center">«Mai sotto un cielo che non si conosce.»</div><div class="right">${fmtDate(new Date().toISOString())}</div></footer>`;
-}
+          {/* ── CONTENT ── */}
+          <div style={{maxWidth:640,margin:"0 auto",padding:"14px 12px 70px"}}>
 
-/* ---- VIAGGIARE ---- */
-function renderViaggiare(root){
-  const isAdmin = S.cloud.owner; 
+            {/* ══ CALENDARIO ══ */}
+            {tab==="calendario" && (
+              <div>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
+                  <div style={{fontSize:12,color:"rgba(255,255,255,0.5)"}}>Tocca una partita per i punteggi</div>
+                  <button onClick={randomize} style={{...btn("linear-gradient(135deg,#ffe066,#ff9500)","#333")}}>🔀 Randomizza</button>
+                </div>
 
-  root.innerHTML=`
-  <div class="sec-head"><h2>Viaggiare · Archivio</h2>${isAdmin?`<button class="btn btn-primary btn-sm" onclick="openItinModal()"><i data-lucide="plus" class="icon-sm"></i> Nuovo</button>`:''}</div>
-  ${S.itins.length===0?`<p class="no-items" style="padding:40px 0">Nessun itinerario. Inizia a scrivere il taccuino.</p>`:`
-  <div class="grid">
-    ${S.itins.map(it=>{
-      const t=calcTotals(it.stops);
-      const dist=it.distance||(t.hasKm?Math.round(t.km)+' km':'—');
-      const col=toneFor(it.stops?.[0]?.type||'travel');
-      return`<div class="card" onclick="goto('itinerary','${it.id}')">
-        <div class="card-cover" style="background:${col}18;color:${col}">
-          ${it.coverUrl ? `<img src="${esc(it.coverUrl)}" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;">` : `<i data-lucide="route" class="icon-xl"></i>`}
-        </div>
-        <div class="card-body">
-          <div class="card-tag"><span>${esc(it.code||'')}</span><span class="status-badge status-${it.status||'draft'}">${STATUS_LABELS[it.status||'draft']}</span></div>
-          <div class="card-title">${esc(it.title)}</div>
-          <div class="card-region"><i data-lucide="map-pin" class="icon-xs"></i>${esc(it.region||'—')}</div>
-          <div class="card-desc">${esc(it.description||'')}</div>
-          <div class="card-meta-row">
-            <span class="card-meta-item"><i data-lucide="ruler" class="icon-xs"></i>${esc(dist)}</span>
-            <span class="card-meta-item"><i data-lucide="clock" class="icon-xs"></i>${esc(it.duration||'—')}</span>
-            <span class="card-meta-item"><i data-lucide="milestone" class="icon-xs"></i>${it.stops?.length||0} tappe</span>
+                {matches.map((m,idx)=>{
+                  const H=byId(m.home), A=byId(m.away);
+                  const r=m.played?matchResult(m):null;
+                  const open=openMatch===m.id;
+                  return (
+                    <div key={m.id} style={{...card({marginBottom:9,overflow:"hidden",
+                      borderColor:m.played?"rgba(80,230,120,0.45)":"rgba(255,200,100,0.22)"})}}>
+
+                      {/* row */}
+                      <div onClick={()=>setOpenMatch(open?null:m.id)}
+                        style={{padding:"11px 14px",cursor:"pointer",display:"flex",alignItems:"center",gap:8}}>
+                        <span style={{background:"rgba(255,220,80,0.22)",color:"#ffe066",borderRadius:6,padding:"2px 7px",fontSize:10,fontWeight:800,flexShrink:0}}>#{idx+1}</span>
+
+                        {/* home */}
+                        <div style={{flex:1,display:"flex",alignItems:"center",gap:7,justifyContent:"flex-end",minWidth:0}}>
+                          <span style={{fontSize:12,fontWeight:800,color:H.color,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{H.name}</span>
+                          <Logo logo={H.logo} name={H.name} color={H.color} size={30}/>
+                        </div>
+
+                        {/* score */}
+                        <div style={{display:"flex",alignItems:"center",gap:5,flexShrink:0}}>
+                          {r ? (
+                            <>
+                              <span style={{background:r.sH>r.sA?"rgba(80,210,100,0.4)":"rgba(255,70,70,0.3)",borderRadius:6,padding:"3px 10px",fontWeight:900,color:r.sH>r.sA?"#6eff9a":"#ff8080",fontSize:18}}>{r.sH}</span>
+                              <span style={{color:"rgba(255,255,255,0.25)",fontWeight:900}}>-</span>
+                              <span style={{background:r.sA>r.sH?"rgba(80,210,100,0.4)":"rgba(255,70,70,0.3)",borderRadius:6,padding:"3px 10px",fontWeight:900,color:r.sA>r.sH?"#6eff9a":"#ff8080",fontSize:18}}>{r.sA}</span>
+                            </>
+                          ) : <span style={{color:"rgba(255,255,255,0.18)",fontSize:16,padding:"0 6px"}}>🆚</span>}
+                        </div>
+
+                        {/* away */}
+                        <div style={{flex:1,display:"flex",alignItems:"center",gap:7,minWidth:0}}>
+                          <Logo logo={A.logo} name={A.name} color={A.color} size={30}/>
+                          <span style={{fontSize:12,fontWeight:800,color:A.color,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{A.name}</span>
+                        </div>
+
+                        <span style={{color:"rgba(255,255,255,0.28)",fontSize:12,flexShrink:0}}>{open?"▲":"▼"}</span>
+                      </div>
+
+                      {/* expanded */}
+                      {open && (
+                        <div style={{padding:"4px 14px 14px",borderTop:"1px solid rgba(255,255,255,0.1)"}}>
+                          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginTop:10}}>
+                            {[{label:"⏱️ Set 1  (5 min)",fH:"s1h",fA:"s1a"},{label:"🔄 Set 2  (cambio campo)",fH:"s2h",fA:"s2a"}].map(({label,fH,fA})=>(
+                              <div key={label} style={{background:"rgba(0,0,0,0.45)",borderRadius:10,padding:"10px 12px"}}>
+                                <div style={{fontSize:10,color:"#ffe066",fontWeight:700,marginBottom:8,textAlign:"center"}}>{label}</div>
+                                <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:10}}>
+                                  <div style={{textAlign:"center"}}>
+                                    <div style={{fontSize:9,color:H.color,marginBottom:3,fontWeight:700,overflow:"hidden",maxWidth:58,textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{H.name.split(" ")[0]}</div>
+                                    <NumInput value={m[fH]} onChange={v=>setScore(m.id,fH,v)} style={{width:46,fontSize:22,padding:"5px 0"}}/>
+                                  </div>
+                                  <span style={{color:"rgba(255,255,255,0.2)"}}>·</span>
+                                  <div style={{textAlign:"center"}}>
+                                    <div style={{fontSize:9,color:A.color,marginBottom:3,fontWeight:700,overflow:"hidden",maxWidth:58,textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{A.name.split(" ")[0]}</div>
+                                    <NumInput value={m[fA]} onChange={v=>setScore(m.id,fA,v)} style={{width:46,fontSize:22,padding:"5px 0"}}/>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                          {m.played&&r&&(
+                            <div style={{marginTop:10,textAlign:"center",fontSize:13,fontWeight:800,color:r.sH===r.sA?"#ffe066":"#6eff9a"}}>
+                              {r.sH===r.sA?"🤝 Pareggio 1-1":`🏐 Vince ${r.sH>r.sA?H.name:A.name}!`}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* ══ CLASSIFICA ══ */}
+            {tab==="classifica" && (
+              <div>
+                <div style={{...card({overflow:"hidden"})}}>
+                  <div style={{display:"grid",gridTemplateColumns:"26px 36px 1fr 26px 26px 26px 34px 30px",gap:2,padding:"10px 12px",background:"rgba(255,220,80,0.18)",fontSize:10,fontWeight:800,letterSpacing:1,textTransform:"uppercase",color:"#ffe066"}}>
+                    <div>#</div><div/>  <div>Squadra</div>
+                    <div style={{textAlign:"center"}}>G</div><div style={{textAlign:"center"}}>V</div><div style={{textAlign:"center"}}>P</div>
+                    <div style={{textAlign:"center"}}>Set</div><div style={{textAlign:"center"}}>Pt</div>
+                  </div>
+                  {table.map((s,idx)=>{
+                    const t=byId(s.id);
+                    const medal=idx===0?"🥇":idx===1?"🥈":idx===2?"🥉":`${idx+1}`;
+                    return (
+                      <div key={s.id} style={{display:"grid",gridTemplateColumns:"26px 36px 1fr 26px 26px 26px 34px 30px",gap:2,padding:"10px 12px",borderTop:"1px solid rgba(255,255,255,0.1)",background:idx===0?"rgba(255,215,0,0.1)":"transparent",alignItems:"center"}}>
+                        <div style={{fontWeight:900,fontSize:idx<3?14:12,color:idx===0?"#ffd700":idx===1?"#c0c0c0":idx===2?"#cd7f32":"#777"}}>{medal}</div>
+                        <Logo logo={t.logo} name={t.name} color={t.color} size={28}/>
+                        <div style={{fontSize:12,fontWeight:700,color:t.color,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{t.name}</div>
+                        {[s.G,s.V,s.P].map((v,i)=><div key={i} style={{textAlign:"center",fontSize:12,color:"rgba(255,255,255,0.8)"}}>{v}</div>)}
+                        <div style={{textAlign:"center",fontSize:10,color:"rgba(255,255,255,0.45)"}}>{s.SV}-{s.SP}</div>
+                        <div style={{textAlign:"center",fontSize:16,fontWeight:900,color:"#ffe066"}}>{s.Pts}</div>
+                      </div>
+                    );
+                  })}
+                </div>
+                <div style={{marginTop:10,padding:"12px 14px",...card({fontSize:11,color:"rgba(255,255,255,0.45)",lineHeight:1.8})}}>
+                  <b style={{color:"#ffe066"}}>Punti:</b> Vittoria 2-0 = <b style={{color:"#fff"}}>3pt</b> · Pareggio 1-1 = <b style={{color:"#fff"}}>2pt</b> a testa · Sconfitta 0-2 = <b style={{color:"#fff"}}>1pt</b>
+                </div>
+              </div>
+            )}
+
+            {/* ══ SQUADRE ══ */}
+            {tab==="squadre" && (
+              <div>
+                {teams.map(team=>(
+                  <div key={team.id} style={{...card({marginBottom:10,overflow:"hidden",borderColor:openTeam===team.id?team.color:"rgba(255,200,100,0.22)"})}}>
+
+                    {/* team header */}
+                    <div onClick={()=>setOpenTeam(openTeam===team.id?null:team.id)}
+                      style={{padding:"14px 16px",cursor:"pointer",display:"flex",alignItems:"center",gap:12}}>
+                      <Logo logo={team.logo} name={team.name} color={team.color} size={44}/>
+                      <div style={{flex:1}}>
+                        <div style={{fontSize:15,fontWeight:800,color:team.color}}>{team.name}</div>
+                        <div style={{fontSize:11,color:"rgba(255,255,255,0.38)",marginTop:2}}>
+                          {team.members.filter(m=>m&&m!=="TBD").length} giocatori
+                        </div>
+                      </div>
+                      <div style={{color:"rgba(255,255,255,0.3)"}}>{openTeam===team.id?"▲":"▼"}</div>
+                    </div>
+
+                    {openTeam===team.id && (
+                      <div style={{padding:"0 16px 16px",borderTop:`1px solid ${team.color}55`}}>
+
+                        {/* ── LOGO ── */}
+                        <div style={{marginTop:14,marginBottom:16,padding:"12px",background:"rgba(0,0,0,0.35)",borderRadius:10}}>
+                          <div style={{fontSize:11,color:"#ffe066",fontWeight:700,marginBottom:10}}>🖼️ Logo squadra</div>
+                          <div style={{display:"flex",alignItems:"center",gap:12}}>
+                            <Logo logo={team.logo} name={team.name} color={team.color} size={52}/>
+                            <div style={{flex:1}}>
+                              {editLogo===team.id ? (
+                                <div>
+                                  <input type="text" value={logoVal} onChange={e=>setLogoVal(e.target.value)}
+                                    placeholder="https://sito.com/logo.png" autoFocus
+                                    style={{width:"100%",background:"rgba(0,0,0,0.65)",border:`2px solid ${team.color}88`,borderRadius:8,color:"#fff",fontSize:12,padding:"8px 10px",outline:"none",marginBottom:8}}/>
+                                  <div style={{display:"flex",gap:8}}>
+                                    <button onClick={()=>saveLogo(team.id)} style={{...btn(team.color),flex:1,padding:"7px",borderRadius:8}}>✓ Salva</button>
+                                    <button onClick={()=>{setEditLogo(null);setLogoVal("");}} style={{...btn("rgba(255,70,70,0.35)"),padding:"7px 12px",borderRadius:8}}>✕</button>
+                                  </div>
+                                </div>
+                              ) : (
+                                <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+                                  <button onClick={()=>{setEditLogo(team.id);setLogoVal(team.logo);}}
+                                    style={{padding:"7px 14px",background:"rgba(255,220,80,0.18)",border:`1px solid rgba(255,220,80,0.4)`,borderRadius:8,color:"#ffe066",fontWeight:700,fontSize:11,cursor:"pointer"}}>
+                                    {team.logo?"✏️ Cambia URL":"➕ Aggiungi URL"}
+                                  </button>
+                                  {team.logo&&<button onClick={()=>setTeams(prev=>prev.map(t=>t.id===team.id?{...t,logo:""}:t))}
+                                    style={{padding:"7px 10px",background:"rgba(255,70,70,0.18)",border:"1px solid rgba(255,70,70,0.35)",borderRadius:8,color:"#ff8080",fontWeight:700,fontSize:11,cursor:"pointer"}}>🗑️</button>}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* ── MEMBRI ── */}
+                        <div style={{padding:"12px",background:"rgba(0,0,0,0.35)",borderRadius:10}}>
+                          <div style={{fontSize:11,color:"#ffe066",fontWeight:700,marginBottom:10}}>👥 Giocatori</div>
+
+                          {team.members.length===0 && (
+                            <div style={{fontSize:12,color:"rgba(255,255,255,0.3)",fontStyle:"italic",paddingBottom:8}}>Nessun giocatore ancora</div>
+                          )}
+
+                          {team.members.map((mbr,i)=>(
+                            <div key={i} style={{display:"flex",alignItems:"center",gap:8,padding:"5px 0",borderBottom:"1px solid rgba(255,255,255,0.07)"}}>
+                              <span style={{color:team.color,fontSize:10,flexShrink:0}}>●</span>
+
+                              {editMbr&&editMbr.teamId===team.id&&editMbr.idx===i ? (
+                                <>
+                                  <input type="text" value={mbrVal} onChange={e=>setMbrVal(e.target.value)}
+                                    onKeyDown={e=>{if(e.key==="Enter")saveMbr(team.id,i);if(e.key==="Escape")setEditMbr(null);}}
+                                    autoFocus
+                                    style={{flex:1,background:"rgba(0,0,0,0.6)",border:`1.5px solid ${team.color}`,borderRadius:7,color:"#fff",fontSize:13,padding:"5px 8px",outline:"none"}}/>
+                                  <button onClick={()=>saveMbr(team.id,i)} style={{padding:"4px 10px",background:team.color,border:"none",borderRadius:6,color:"#fff",fontWeight:800,fontSize:11,cursor:"pointer"}}>✓</button>
+                                  <button onClick={()=>setEditMbr(null)} style={{padding:"4px 7px",background:"rgba(255,70,70,0.3)",border:"none",borderRadius:6,color:"#fff",fontSize:11,cursor:"pointer"}}>✕</button>
+                                </>
+                              ) : (
+                                <>
+                                  <span style={{flex:1,fontSize:13,color:mbr?"rgba(255,255,255,0.88)":"rgba(255,255,255,0.28)",fontStyle:mbr?"normal":"italic"}}>
+                                    {mbr||"⏳ Da definire"}
+                                  </span>
+                                  <button onClick={()=>{setEditMbr({teamId:team.id,idx:i});setMbrVal(mbr||"");}}
+                                    style={{padding:"3px 8px",background:"rgba(255,255,255,0.1)",border:"none",borderRadius:5,color:"rgba(255,255,255,0.5)",fontSize:12,cursor:"pointer"}}>✏️</button>
+                                  <button onClick={()=>delMbr(team.id,i)}
+                                    style={{padding:"3px 7px",background:"rgba(255,70,70,0.2)",border:"none",borderRadius:5,color:"#ff8080",fontSize:13,cursor:"pointer",fontWeight:900}}>×</button>
+                                </>
+                              )}
+                            </div>
+                          ))}
+
+                          <button onClick={()=>addMbr(team.id)}
+                            style={{marginTop:10,width:"100%",padding:"8px",background:"rgba(255,255,255,0.07)",
+                                    border:`1px dashed ${team.color}88`,borderRadius:8,color:team.color,
+                                    fontWeight:700,fontSize:12,cursor:"pointer"}}>
+                            + Aggiungi giocatore
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* ══ SCOMMESSE ══ */}
+            {tab==="scommesse" && (
+              <div>
+
+                {/* FAVORITA banner */}
+                {(()=>{
+                  const top=probs.find(p=>p.prob>0);
+                  const tt=top?byId(top.id):null;
+                  if(!tt) return (
+                    <div style={{...card({padding:"18px",marginBottom:14,textAlign:"center"})}}>
+                      <div style={{fontSize:13,color:"rgba(255,255,255,0.4)"}}>Inserisci le quote qui sotto per vedere le probabilità 👇</div>
+                    </div>
+                  );
+                  return (
+                    <div style={{...card({padding:"16px",marginBottom:14,borderColor:tt.color,background:"rgba(0,0,0,0.65)",textAlign:"center"})}}>
+                      <div style={{fontSize:10,color:"rgba(255,255,255,0.45)",letterSpacing:3,textTransform:"uppercase"}}>⭐ Favorita al momento</div>
+                      <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:14,marginTop:10}}>
+                        <Logo logo={tt.logo} name={tt.name} color={tt.color} size={56}/>
+                        <div>
+                          <div style={{fontSize:20,fontWeight:900,color:tt.color}}>{tt.name}</div>
+                          <div style={{fontSize:32,fontWeight:900,color:"#ffe066",lineHeight:1}}>{top.prob.toFixed(1)}%</div>
+                          <div style={{fontSize:11,color:"rgba(255,255,255,0.4)",marginTop:2}}>probabilità di vittoria</div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })()}
+
+                {/* QUOTE INPUT + BARS */}
+                <div style={{...card({padding:"16px",marginBottom:14})}}>
+                  <div style={{fontSize:13,fontWeight:800,color:"#ffe066",marginBottom:4}}>🎲 Quote delle squadre</div>
+                  <div style={{fontSize:11,color:"rgba(255,255,255,0.4)",marginBottom:14}}>Inserisci la quota (es. 1.50 · 2.00 · 4.00). Valori più bassi = più favorita.</div>
+
+                  {teams.map(team=>{
+                    const p=probs.find(x=>x.id===team.id);
+                    const pct=p?p.prob:0;
+                    const rank=probs.filter(x=>x.prob>0).findIndex(x=>x.id===team.id);
+                    return (
+                      <div key={team.id} style={{marginBottom:16}}>
+                        <div style={{display:"flex",alignItems:"center",gap:9,marginBottom:6}}>
+                          <Logo logo={team.logo} name={team.name} color={team.color} size={28}/>
+                          <span style={{flex:1,fontSize:13,fontWeight:700,color:team.color,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{team.name}</span>
+                          <div style={{display:"flex",alignItems:"center",gap:6}}>
+                            <span style={{fontSize:11,color:"rgba(255,255,255,0.35)"}}>Quota</span>
+                            <NumInput value={odds[team.id]||""} onChange={v=>setOdds(prev=>({...prev,[team.id]:v}))}
+                              placeholder="2.00"
+                              style={{width:68,fontSize:16,fontWeight:700,padding:"6px 4px",border:`2px solid ${team.color}77`}}/>
+                          </div>
+                          <span style={{fontSize:14,fontWeight:900,color:pct>0?"#ffe066":"rgba(255,255,255,0.2)",minWidth:48,textAlign:"right"}}>
+                            {pct>0?pct.toFixed(1)+"%":"—"}
+                          </span>
+                        </div>
+                        {/* probability bar */}
+                        <div style={{height:12,background:"rgba(255,255,255,0.08)",borderRadius:6,overflow:"hidden",position:"relative"}}>
+                          <div style={{height:"100%",width:`${pct}%`,background:`linear-gradient(90deg,${team.color}99,${team.color})`,borderRadius:6,transition:"width .45s ease",position:"relative"}}>
+                            {pct>8&&<span style={{position:"absolute",right:6,top:"50%",transform:"translateY(-50%)",fontSize:9,fontWeight:800,color:"#fff",whiteSpace:"nowrap"}}>{rank===0?"👑":""}</span>}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* RANKING CARD */}
+                {probs.some(p=>p.prob>0)&&(
+                  <div style={{...card({padding:"16px"})}}>
+                    <div style={{fontSize:13,fontWeight:800,color:"#ffe066",marginBottom:12}}>📊 Ranking Probabilità</div>
+                    {probs.map((p,idx)=>{
+                      if(p.prob===0) return null;
+                      const t=byId(p.id);
+                      const medal=idx===0?"🥇":idx===1?"🥈":idx===2?"🥉":`${idx+1}.`;
+                      return (
+                        <div key={p.id} style={{display:"flex",alignItems:"center",gap:10,padding:"9px 0",borderBottom:"1px solid rgba(255,255,255,0.07)"}}>
+                          <span style={{fontSize:idx<3?18:13,width:28,textAlign:"center"}}>{medal}</span>
+                          <Logo logo={t.logo} name={t.name} color={t.color} size={30}/>
+                          <span style={{flex:1,fontSize:13,fontWeight:700,color:t.color,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{t.name}</span>
+                          {odds[p.id]&&<span style={{fontSize:11,color:"rgba(255,255,255,0.35)",flexShrink:0}}>quota {parseFloat(odds[p.id]).toFixed(2)}</span>}
+                          <span style={{fontSize:17,fontWeight:900,color:"#ffe066",minWidth:54,textAlign:"right"}}>{p.prob.toFixed(1)}%</span>
+                        </div>
+                      );
+                    })}
+                    <div style={{marginTop:10,fontSize:11,color:"rgba(255,255,255,0.3)",textAlign:"center"}}>
+                      Probabilità normalizzate dalla quota · Si aggiornano in tempo reale
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* ── RESET ── */}
+            <div style={{marginTop:28,textAlign:"center"}}>
+              <button onClick={reset} style={{padding:"8px 18px",background:"rgba(255,40,40,0.18)",border:"1px solid rgba(255,80,80,0.38)",borderRadius:20,color:"#ff8080",fontSize:12,cursor:"pointer",fontWeight:700}}>
+                🔄 Reset Torneo
+              </button>
+            </div>
+
           </div>
         </div>
-      </div>`;
-    }).join('')}
-    ${isAdmin?`<div class="card-add" onclick="openItinModal()"><i data-lucide="plus" class="icon-lg"></i><div class="card-add-text">Nuovo Viaggio</div></div>`:''}
-  </div>`}
-  <div class="sec-head" style="margin-top:48px"><h2>Punti di Riferimento</h2>${isAdmin?`<button class="btn btn-clay btn-sm" onclick="openPointModal()"><i data-lucide="plus" class="icon-sm"></i> Nuovo</button>`:''}</div>
-  ${S.pts.length===0?`<p class="no-items">Nessun punto ancora.</p>`:`
-  <div class="grid">
-    ${S.pts.map(p=>`<div class="card" onclick="goto('point','${p.id}')">
-      <div class="card-cover" style="background:#b85a1f15;color:#b85a1f"><i data-lucide="map-pin" class="icon-xl"></i></div>
-      <div class="card-body">
-        <div class="card-tag">${esc(p.code||'')}</div>
-        <div class="card-title">${esc(p.title)}</div>
-        <div class="card-region"><i data-lucide="map-pin" class="icon-xs"></i>${esc(p.region||'—')}</div>
-        <div class="card-desc">${esc(p.description||'')}</div>
-        <div class="card-meta-row"><span class="card-meta-item"><i data-lucide="star" class="icon-xs"></i>${p.bestPoints?.length||0} best points</span></div>
-      </div>
-    </div>`).join('')}
-    ${isAdmin?`<div class="card-add" onclick="openPointModal()"><i data-lucide="plus" class="icon-lg"></i><div class="card-add-text">Nuovo Punto</div></div>`:''}
-  </div>`}
-  <footer><div class="left"><i data-lucide="mountain-snow" class="icon-sm"></i> BAITO DELL'ORSO</div><div class="center">«Mai sotto un cielo che non si conosce.»</div><div class="right">${fmtDate(new Date().toISOString())}</div></footer>`;
-}
+      );
+    }
 
-/* ---- ITINERARY DETAIL ---- */
-function renderItinerary(root,id){ 
-  const isAdmin = S.cloud.owner; 
-
-  const it=S.itins.find(x=>x.id===id);
-  if(!it){root.innerHTML='<p style="padding:40px">Non trovato.</p>';return;}
-  const stops=[...(it.stops||[])].sort((a,b)=>(a.day||0)-(b.day||0));
-  const t=calcTotals(stops);
-  const distDisplay=it.distance||(t.hasKm?Math.round(t.km)+' km':null);
-  const durDisplay=it.duration||(t.hasHours?t.hoursStr:null);
-  const autoKm=!it.distance&&t.hasKm,autoDur=!it.duration&&t.hasHours;
-  
-  // IMMAGINE COPERTINA COME SFONDO DELLA HERO
-  const heroStyle = it.coverUrl 
-      ? `background-image: url('${esc(it.coverUrl)}'); background-size: cover; background-position: center;`
-      : `background: var(--sand-mid);`;
-
-  root.innerHTML=`
-  <button class="back-btn" onclick="goto('viaggiare')"><i data-lucide="arrow-left" class="icon-sm"></i> Tutti i Viaggi</button>
-  
-  <div class="detail-hero" style="${heroStyle}">
-    ${!it.coverUrl ? `<i data-lucide="mountain-snow" style="width:60px;height:60px;stroke-width:1;opacity:.3"></i>` : ''}
-  </div>
-
-  <div class="detail-title-row">
-    <h1>${esc(it.title)}</h1>
-    ${isAdmin ? `
-    <div class="actions">
-      <button class="btn btn-ghost btn-sm" onclick="openItinModal('${it.id}')"><i data-lucide="pencil" class="icon-sm"></i> Modifica</button>
-      <button class="btn btn-danger btn-sm" onclick="deleteItin('${it.id}')"><i data-lucide="trash-2" class="icon-sm"></i></button>
-    </div>` : ''}
-  </div>
-  <div class="detail-meta">
-    <span><i data-lucide="map-pin"></i>${esc(it.region||'—')}</span>
-    <span><i data-lucide="sun"></i>${esc(it.season||'—')}</span>
-    <span class="status-badge status-${it.status||'draft'}" style="padding:3px 10px">${STATUS_LABELS[it.status||'draft']}</span>
-  </div>
-  <div class="detail-stats">
-    ${distDisplay?`<div class="d-stat"><div class="d-stat-label">Distanza</div><div class="d-stat-value">${esc(distDisplay)}${autoKm?`<span class="auto-tag">⚡auto</span>`:''}</div></div>`:''}
-    ${durDisplay?`<div class="d-stat"><div class="d-stat-label">Durata Guida</div><div class="d-stat-value">${esc(durDisplay)}${autoDur?`<span class="auto-tag">⚡auto</span>`:''}</div></div>`:''}
-    ${t.hasCost?`<div class="d-stat"><div class="d-stat-label">Costo Trasp.</div><div class="d-stat-value">€ ${Math.round(t.cost)}<span class="auto-tag">⚡auto</span></div></div>`:''}
-    <div class="d-stat"><div class="d-stat-label">Tappe</div><div class="d-stat-value">${stops.length}</div></div>
-    ${it.terrain?`<div class="d-stat"><div class="d-stat-label">Terreno</div><div class="d-stat-value" style="font-size:16px">${esc(it.terrain)}</div></div>`:''}
-  </div>
-  ${it.description?`<p style="font-size:16px;line-height:1.65;color:var(--forest-soft);margin-bottom:24px">${nl2br(it.description)}</p>`:''}
-  <div class="sec-head"><h2>Tappe del Viaggio</h2><span class="sec-meta">${stops.length} fermate</span></div>
-  ${stops.length===0?`<p class="no-items">Nessuna tappa. Modifica il viaggio per aggiungerne.</p>`:`<div class="stages">${stops.map((s,i)=>{
-    const isT=s.type==='travel';
-    let dateHtml='';
-    if(s.stageDate){const d=new Date(s.stageDate);dateHtml=`<div class="stage-date-big">${d.toLocaleDateString('it-IT',{day:'numeric',month:'short'})}</div><div class="stage-day-small">Giorno ${s.day||i+1}</div>`;}
-    else{dateHtml=`<div class="stage-big-num">${String(i+1).padStart(2,'0')}</div><div class="stage-day-small">${s.day?'Giorno '+s.day:''}</div>`;}
-    const name=isT?`${esc(s.fromPlace||'?')} <span style="color:var(--clay)">→</span> ${esc(s.toPlace||'?')}`:esc(s.name||'—');
-    return`<div class="stage-item">
-      <div class="stage-num-col">${dateHtml}</div>
-      <div class="stage-content">
-        <div class="stage-top-row">
-          <div class="stage-name-large">${name}</div>
-          <div class="stage-type-pill type-${s.type||'travel'}">${esc(typeLabel(s.type||'travel'))}</div>
-        </div>
-        <div class="stage-info-row">
-          ${isT&&s.distance?`<span><i data-lucide="ruler" style="width:11px;height:11px"></i><strong>${esc(s.distance)}</strong></span>`:''}
-          ${isT&&s.hours?`<span><i data-lucide="clock" style="width:11px;height:11px"></i><strong>${esc(s.hours)}</strong></span>`:''}
-          ${isT&&s.cost?`<span><i data-lucide="euro" style="width:11px;height:11px"></i><strong>${esc(s.cost)}</strong></span>`:''}
-          ${!isT&&s.timeSlot?`<span>${esc(s.timeSlot)}</span>`:''}
-          ${!isT&&s.duration?`<span><i data-lucide="timer" style="width:11px;height:11px"></i><strong>${esc(s.duration)}</strong></span>`:''}
-          ${s.coords?`<span style="font-family:var(--mono);font-size:9.5px;text-transform:none;letter-spacing:.04em">${esc(s.coords)}</span>`:''}
-        </div>
-        ${s.notes?`<div class="stage-notes-text">${nl2br(s.notes)}</div>`:''}
-      </div>
-    </div>`;
-  }).join('')}</div>`}
-  <div style="margin-top:32px">
-    <div class="sec-head"><h2>Mappa Itinerario</h2></div>
-    <div style="position:relative">
-      <div class="map-tile-sw" data-map="map-itin">
-        <button class="${S.tile==='topo'?'active':''}" data-tile="topo" onclick="switchTile('map-itin','topo')">Topo</button>
-        <button class="${S.tile==='sat'?'active':''}" data-tile="sat" onclick="switchTile('map-itin','sat')">Satellite</button>
-      </div>
-      <div id="map-itin" id="map-wrap" style="height:400px;border:1px solid var(--forest);border-radius:var(--r-md);margin-top:0;overflow:hidden"></div>
-    </div>
-  </div>
-  <footer><div class="left"><i data-lucide="mountain-snow" class="icon-sm"></i> BAITO DELL'ORSO</div><div class="center">«Mai sotto un cielo che non si conosce.»</div><div class="right">${fmtDate(new Date().toISOString())}</div></footer>`;
-  setTimeout(()=>{
-    const markers=stops.map((s,i)=>{
-      const coords=parseCoords(s.coords);if(!coords)return null;
-      const name=s.type==='travel'?`${s.fromPlace||''}→${s.toPlace||''}`:(s.name||typeLabel(s.type||'travel'));
-      return{coords,type:s.type,popup:`<div style="font-family:var(--mono);font-size:9px;color:var(--clay);margin-bottom:3px">TAPPA ${i+1}</div><div style="font-weight:500">${esc(name)}</div>${s.notes?`<div style="font-style:italic;font-size:12px;color:var(--forest-soft);margin-top:3px">${esc(s.notes.slice(0,80))}${s.notes.length>80?'…':''}</div>`:''}`};
-    }).filter(Boolean);
-    initMap('map-itin',markers,{connect:true});
-  },80);
-}
-
-function renderPoint(root,id){
-  const isAdmin = S.cloud.owner; 
-
-  const p=S.pts.find(x=>x.id===id);
-  if(!p){root.innerHTML='<p style="padding:40px">Non trovato.</p>';return;}
-  const bps=p.bestPoints||[];
-  root.innerHTML=`
-  <button class="back-btn" onclick="goto('viaggiare')"><i data-lucide="arrow-left" class="icon-sm"></i> Tutti i Punti</button>
-  <div class="detail-title-row">
-    <h1>${esc(p.title)}</h1>
-    ${isAdmin ? `
-    <div class="actions">
-      <button class="btn btn-ghost btn-sm" onclick="openPointModal('${p.id}')"><i data-lucide="pencil" class="icon-sm"></i> Modifica</button>
-      <button class="btn btn-danger btn-sm" onclick="deletePt('${p.id}')"><i data-lucide="trash-2" class="icon-sm"></i></button>
-    </div>` : ''}
-  </div>
-  <div class="detail-meta"><span><i data-lucide="map-pin"></i>${esc(p.region||'—')}</span>${p.coords?`<span style="font-family:var(--mono);font-size:10px">${esc(p.coords)}</span>`:''}</div>
-  ${p.description?`<p style="font-size:16px;line-height:1.65;color:var(--forest-soft);margin-bottom:24px">${nl2br(p.description)}</p>`:''}
-  ${bps.length>0?`<div class="sec-head"><h2>Best Points</h2><span class="sec-meta">${bps.length} catalogati</span></div><div class="bps-grid">${bps.map(b=>`<div class="bp-card"><div class="bp-card-top"><span class="bp-type-tag">${esc(b.type||'')}</span>${b.distance?`<span class="bp-dist">${esc(b.distance)}</span>`:''}</div><div class="bp-name">${esc(b.name||'—')}</div>${b.notes?`<div class="bp-notes">${nl2br(b.notes)}</div>`:''}</div>`).join('')}</div>`:'' }
-  <div style="margin-top:28px">
-    <div id="map-pt-wrap" style="height:360px;border:1px solid var(--forest);border-radius:var(--r-md);overflow:hidden"></div>
-  </div>
-  <footer><div class="left"><i data-lucide="mountain-snow" class="icon-sm"></i> BAITO DELL'ORSO</div><div class="right">${fmtDate(new Date().toISOString())}</div></footer>`;
-  setTimeout(()=>{
-    const coords=parseCoords(p.coords);
-    if(coords)initMap('map-pt-wrap',[{coords,type:'viewpoint',popup:`<strong>${esc(p.title)}</strong>`}],{isPoint:true});
-    else{const el=document.getElementById('map-pt-wrap');if(el)el.innerHTML=`<div class="map-empty"><i data-lucide="map-off" class="icon-lg"></i><div>Coordinate non impostate.</div></div>`;ri();}
-  },80);
-}
-
-/* ---- SHOP (HIGH HOPE STYLE) ---- */
-function renderShop(root){
-  const filt=S.shopFilter==='all'?PRODUCTS:PRODUCTS.filter(p=>p.type===S.shopFilter);
-  root.innerHTML=`
-  <div class="shop-banner">
-    <div>
-      <div style="font-family:var(--mono);font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--clay);margin-bottom:14px;display:flex;align-items:center;gap:10px"><span style="width:24px;height:1px;background:var(--clay);display:inline-block"></span>Shop del Baito · Aperto</div>
-      <h1>Abbigliamento<br>per chi va<br><em>lontano.</em></h1>
-      <p style="margin-top:14px">Semplice, essenziale. Magliette e felpe per chi ama esplorare — e vuole farlo con stile.</p>
-    </div>
-    <div class="shop-how">
-      <div class="shop-how-title"><i data-lucide="package" class="icon-xs"></i> Come Ordinare</div>
-      <ul class="shop-how-steps">
-        <li>Scegli modello, colore e taglia</li>
-        <li>Scrivici su Instagram o via mail</li>
-        <li>Confermiamo disponibilità e spedizione</li>
-        <li>Pagamento alla consegna o anticipato via PayPal</li>
-      </ul>
-    </div>
-  </div>
-  <div class="shop-filters">
-    <span class="shop-filter-label">Filtra:</span>
-    ${['all','T-Shirt','Felpa','Cappellino'].map(f=>`<button class="shop-filter-btn${S.shopFilter===f?' active':''}" onclick="setShopFilter('${f}')">${f==='all'?'Tutti ('+PRODUCTS.length+')':f+' ('+PRODUCTS.filter(p=>p.type===f).length+')'}</button>`).join('')}
-  </div>
-  <div class="product-grid">${filt.map(p=>{
-    const bg=p.tone+'18';
-    return`<div class="product-card${p.available?'':' coming-soon'}">
-      <div class="product-visual" style="background:${bg};color:${p.tone}">
-        <i data-lucide="shirt" style="width:72px;height:72px;stroke-width:.9;opacity:.5"></i>
-        <span class="product-type-badge">${esc(p.type)}</span>
-        ${!p.available?`<span class="product-cs-badge">Presto</span>`:''}
-      </div>
-      <div class="product-body">
-        <div class="product-name">${esc(p.name)}</div>
-        <div class="product-price"><span class="cur">€</span>${p.price}</div>
-        <div class="product-desc">${esc(p.desc)}</div>
-        <div class="product-colors"><span class="p-color-label">Colori</span>${p.colors.map(c=>`<div class="color-dot" style="background:${c}"></div>`).join('')}</div>
-        <div class="product-sizes">${p.sizes.map(s=>`<span class="size-tag">${esc(s)}</span>`).join('')}</div>
-        ${p.available
-          ?`<button class="btn btn-primary btn-sm" style="width:100%;justify-content:center" onclick="window.location.href='mailto:info@baitodellorso.it?subject=Ordine: ${encodeURIComponent(p.name)}'"><i data-lucide="mail" class="icon-xs"></i> Contattaci per ordinare</button>`
-          :`<button class="btn btn-ghost btn-sm" style="width:100%;justify-content:center" disabled><i data-lucide="clock" class="icon-xs"></i> Prossimamente</button>`}
-      </div>
-    </div>`;
-  }).join('')}</div>
-  <div class="shop-cta-bar" style="background:var(--forest);border-radius:var(--r-lg);padding:32px;display:flex;justify-content:space-between;align-items:center;gap:24px;margin-top:48px;flex-wrap:wrap">
-    <div class="shop-cta-text">
-      <h3 style="font-family:var(--serif);font-size:24px;font-weight:500;color:var(--bone);margin-bottom:6px">Ordina il tuo pezzo.</h3>
-      <p style="font-family:var(--serif);font-style:italic;font-size:14px;color:rgba(250,243,224,.75)">Piccole tirature, massima qualità. Rispondiamo entro 24 ore.</p>
-    </div>
-    <div class="shop-cta-btns" style="display:flex;gap:8px">
-      <button class="btn btn-sm" style="background:transparent;border:1px solid var(--bone);color:var(--bone);" onclick="window.open('https://instagram.com','_blank')"><i data-lucide="instagram" class="icon-sm"></i> Instagram</button>
-      <button class="btn btn-sm" style="background:transparent;border:1px solid var(--bone);color:var(--bone);" onclick="window.location.href='mailto:info@baitodellorso.it'"><i data-lucide="mail" class="icon-sm"></i> Email</button>
-    </div>
-  </div>
-  <footer><div class="left"><i data-lucide="mountain-snow" class="icon-sm"></i> BAITO DELL'ORSO</div><div class="center">«Mai sotto un cielo che non si conosce.»</div><div class="right">${fmtDate(new Date().toISOString())}</div></footer>`;
-}
-function setShopFilter(f){S.shopFilter=f;renderShop(document.getElementById('app'));ri();}
-
-/* ================================================
-   MODALS LOGIC
-================================================ */
-function openModal(html){ document.getElementById('modal').innerHTML=html; document.getElementById('modal-back').classList.add('open'); document.body.style.overflow='hidden'; document.getElementById('modal-back').onclick=e=>{if(e.target===document.getElementById('modal-back'))closeModal();}; document.addEventListener('keydown',escKey); ri(); }
-function closeModal(){ document.getElementById('modal-back').classList.remove('open'); document.body.style.overflow=''; document.removeEventListener('keydown',escKey); }
-function escKey(e){if(e.key==='Escape')closeModal();}
-function scrollModalBottom(){const b=document.querySelector('.modal-body');if(b)b.scrollTo({top:b.scrollHeight,behavior:'smooth'});}
-
-function openItinModal(id=null){ 
-  const it=id?JSON.parse(JSON.stringify(S.itins.find(x=>x.id===id))):{id:uid(),title:'',region:'',coverUrl:'',distance:'',duration:'',season:'',terrain:'',description:'',status:'draft',stops:[],dateAdded:new Date().toISOString()};
-  const stops=it.stops||[];
-  openModal(`
-  <div class="modal-head">
-    <h3>${id?'Modifica Viaggio':'Nuovo Viaggio'}</h3>
-    <button class="modal-close" onclick="closeModal()"><i data-lucide="x" class="icon-sm"></i></button>
-  </div>
-  <div class="modal-body" id="itin-modal-body">
-    <div class="field-row">
-      <div class="field"><label>Titolo *</label><input id="i-title" value="${esc(it.title)}"></div>
-      <div class="field"><label>Regione</label><input id="i-region" value="${esc(it.region)}"></div>
-    </div>
-    
-    <div class="field">
-      <label>Link Immagine Copertina (URL pubblico)</label>
-      <input id="i-cover" value="${esc(it.coverUrl)}" placeholder="es: https://images.unsplash.com/photo-123...">
-    </div>
-
-    <div class="field-row field-3">
-      <div class="field"><label>Stato</label><select id="i-status"><option value="draft"${it.status==='draft'?' selected':''}>In Bozza</option><option value="active"${it.status==='active'?' selected':''}>In Corso</option><option value="completed"${it.status==='completed'?' selected':''}>Concluso</option><option value="filed"${it.status==='filed'?' selected':''}>Archiviato</option></select></div>
-      <div class="field"><label>Stagione</label><input id="i-season" value="${esc(it.season)}"></div>
-      <div class="field"><label>Terreno</label><input id="i-terrain" value="${esc(it.terrain)}"></div>
-    </div>
-    <div class="field-row">
-      <div class="field"><label>Distanza totale</label><input id="itin-distance" value="${esc(it.distance)}" oninput="this.dataset.manual='1'"></div>
-      <div class="field"><label>Durata guida</label><input id="itin-duration" value="${esc(it.duration)}" oninput="this.dataset.manual='1'"></div>
-    </div>
-    <div class="field"><label>Descrizione</label><textarea id="i-desc">${esc(it.description)}</textarea></div>
-    <div style="margin:18px 0 10px;display:flex;justify-content:space-between;align-items:center;">
-      <div style="font-family:var(--serif);font-size:17px;font-weight:500;text-transform:uppercase">Tappe</div>
-      <div class="accordion-toolbar">
-        <button type="button" class="acc-ctrl-btn" onclick="openAllAcc()"><i data-lucide="chevrons-down" class="icon-xs"></i> Apri</button>
-        <button type="button" class="acc-ctrl-btn" onclick="closeAllAcc()"><i data-lucide="chevrons-up" class="icon-xs"></i> Chiudi</button>
-      </div>
-    </div>
-    <div class="stages-list" id="stages-list">${stops.length===0?`<div class="stages-empty">Nessuna tappa. Aggiungila qui sotto.</div>`:stops.map((s,i)=>stageAccHtml(s,i)).join('')}</div>
-    <button type="button" class="btn btn-ghost" style="width:100%;margin-top:8px;border:1.5px dashed var(--forest-ghost)" onclick="addStage()"><i data-lucide="plus" class="icon-sm"></i> Aggiungi Tappa</button>
-    <button class="modal-scroll-fab" onclick="scrollModalBottom()" title="Vai in fondo"><i data-lucide="arrow-down" class="icon-sm"></i></button>
-  </div>
-  <div class="modal-foot">
-    ${id?`<button class="btn btn-danger btn-sm" onclick="deleteItin('${id}')"><i data-lucide="trash-2" class="icon-sm"></i> Elimina</button>`:'<div></div>'}
-    <div style="display:flex;gap:8px">
-      <button class="btn btn-ghost" onclick="closeModal()">Annulla</button>
-      <button class="btn btn-primary" onclick="saveItin('${it.id}')"><i data-lucide="check" class="icon-sm"></i> Salva</button>
-    </div>
-  </div>`);
-}
-
-function addStage(){ const list=document.getElementById('stages-list'); if(!list)return; const emp=list.querySelector('.stages-empty');if(emp)emp.remove(); const count=list.querySelectorAll('.stage-acc').length; const s={id:uid(),day:count+1,stageDate:'',type:'travel',travelMode:'car',fromPlace:'',toPlace:'',distance:'',hours:'',cost:'',name:'',timeSlot:'',duration:'',coords:'',notes:''}; const div=document.createElement('div'); div.innerHTML=stageAccHtml(s,count); list.appendChild(div.firstElementChild); ri(); setTimeout(()=>scrollModalBottom(),50); }
-
-async function saveItin(id){ 
-  const title=document.getElementById('i-title')?.value.trim(); 
-  if(!title){toast('Manca il titolo');document.getElementById('i-title').focus();return;} 
-  const itin={ 
-    id, title, 
-    region:document.getElementById('i-region')?.value.trim()||'', 
-    coverUrl:document.getElementById('i-cover')?.value.trim()||'', /* NUOVO CAMPO SALVATO */
-    status:document.getElementById('i-status')?.value||'draft', 
-    season:document.getElementById('i-season')?.value.trim()||'', 
-    terrain:document.getElementById('i-terrain')?.value.trim()||'', 
-    distance:document.getElementById('itin-distance')?.value.trim()||'', 
-    duration:document.getElementById('itin-duration')?.value.trim()||'', 
-    description:document.getElementById('i-desc')?.value||'', 
-    stops:collectStages(), 
-    dateAdded:S.itins.find(x=>x.id===id)?.dateAdded||new Date().toISOString() 
-  }; 
-  const idx=S.itins.findIndex(x=>x.id===id); 
-  if(idx>=0)S.itins[idx]=itin;else S.itins.unshift(itin); 
-  await persist(); 
-  closeModal();toast('Viaggio salvato!'); 
-  if(S.route.name==='itinerary')renderItinerary(document.getElementById('app'),id); else render(); 
-}
-
-async function deleteItin(id){ if(!confirm('Eliminare questo itinerario?'))return; S.itins=S.itins.filter(x=>x.id!==id); await persist();closeModal();toast('Eliminato.');goto('viaggiare'); }
-
-function openPointModal(id=null){ 
-  const p=id?JSON.parse(JSON.stringify(S.pts.find(x=>x.id===id))):{id:uid(),title:'',region:'',coords:'',description:'',bestPoints:[],dateAdded:new Date().toISOString()};
-  const bps=p.bestPoints||[];
-  openModal(`
-  <div class="modal-head">
-    <h3>${id?'Modifica Punto':'Nuovo Punto'}</h3>
-    <button class="modal-close" onclick="closeModal()"><i data-lucide="x" class="icon-sm"></i></button>
-  </div>
-  <div class="modal-body">
-    <div class="field-row">
-      <div class="field"><label>Titolo *</label><input id="p-title" value="${esc(p.title)}"></div>
-      <div class="field"><label>Regione</label><input id="p-region" value="${esc(p.region)}"></div>
-    </div>
-    <div class="field"><label>Coordinate (Google Maps)</label><input id="p-coords" value="${esc(p.coords)}"></div>
-    <div class="field"><label>Descrizione / Note</label><textarea id="p-desc">${esc(p.description)}</textarea></div>
-    <div style="margin:14px 0 8px;font-family:var(--serif);font-size:16px;font-weight:500;text-transform:uppercase">Best Points</div>
-    <div id="bp-list" style="display:flex;flex-direction:column;gap:8px">
-      ${bps.map((b,i)=>`<div class="stage-acc open" data-bp-id="${esc(b.id)}" style="background:var(--sand);border:1px solid var(--forest-ghost)">
-        <div style="display:flex;align-items:center;gap:8px;padding:8px 10px;border-bottom:1px dashed var(--forest-ghost)">
-          <span style="font-family:var(--mono);font-size:10px;color:var(--clay);font-weight:700">BP ${String(i+1).padStart(2,'0')}</span>
-          <span style="flex:1;font-style:italic;font-size:13px;color:var(--forest-soft)">${esc(b.name||'')}</span>
-          <button type="button" class="stage-acc-del" onclick="removeBP('${esc(b.id)}')"><i data-lucide="x" class="icon-xs"></i></button>
-        </div>
-        <div style="padding:10px">
-          <div class="field-row"><div class="field" style="margin-bottom:8px"><label>Nome</label><input type="text" class="bp-name" value="${esc(b.name||'')}"></div><div class="field" style="margin-bottom:8px"><label>Distanza</label><input type="text" class="bp-dist" value="${esc(b.distance||'')}"></div></div>
-          <div class="field-row"><div class="field" style="margin-bottom:8px"><label>Tipo</label><select class="bp-type"><option value="food"${b.type==='food'?' selected':''}>Cibo</option><option value="viewpoint"${b.type==='viewpoint'?' selected':''}>Panorama</option><option value="beach"${b.type==='beach'?' selected':''}>Spiaggia</option><option value="activity"${b.type==='activity'?' selected':''}>Attività</option><option value="evening"${b.type==='evening'?' selected':''}>Serata</option><option value="relax"${b.type==='relax'?' selected':''}>Relax</option><option value="history"${b.type==='history'?' selected':''}>Storia</option></select></div><div class="field" style="margin-bottom:8px"><label>Note</label><input type="text" class="bp-notes" value="${esc(b.notes||'')}"></div></div>
-        </div>
-      </div>`).join('')}
-    </div>
-    <button type="button" class="btn btn-ghost" style="width:100%;margin-top:8px;border:1.5px dashed var(--forest-ghost)" onclick="addBP()"><i data-lucide="plus" class="icon-sm"></i> Aggiungi Best Point</button>
-  </div>
-  <div class="modal-foot">
-    ${id?`<button class="btn btn-danger btn-sm" onclick="deletePt('${id}')"><i data-lucide="trash-2" class="icon-sm"></i> Elimina</button>`:'<div></div>'}
-    <div style="display:flex;gap:8px">
-      <button class="btn btn-ghost" onclick="closeModal()">Annulla</button>
-      <button class="btn btn-primary" onclick="savePt('${p.id}')"><i data-lucide="check" class="icon-sm"></i> Salva</button>
-    </div>
-  </div>`);
-}
-
-function addBP(){ const list=document.getElementById('bp-list');if(!list)return; const id=uid(),count=list.querySelectorAll('[data-bp-id]').length; const div=document.createElement('div'); div.innerHTML=`<div class="stage-acc open" data-bp-id="${id}" style="background:var(--sand);border:1px solid var(--forest-ghost)"><div style="display:flex;align-items:center;gap:8px;padding:8px 10px;border-bottom:1px dashed var(--forest-ghost)"><span style="font-family:var(--mono);font-size:10px;color:var(--clay);font-weight:700">BP ${String(count+1).padStart(2,'0')}</span><span style="flex:1;font-style:italic;font-size:13px;color:var(--forest-ghost)">Nuovo punto</span><button type="button" class="stage-acc-del" onclick="removeBP('${id}')"><i data-lucide="x" class="icon-xs"></i></button></div><div style="padding:10px"><div class="field-row"><div class="field" style="margin-bottom:8px"><label>Nome</label><input type="text" class="bp-name"></div><div class="field" style="margin-bottom:8px"><label>Distanza</label><input type="text" class="bp-dist"></div></div><div class="field-row"><div class="field" style="margin-bottom:8px"><label>Tipo</label><select class="bp-type"><option value="food">Cibo</option><option value="viewpoint">Panorama</option><option value="beach">Spiaggia</option><option value="activity">Attività</option><option value="evening">Serata</option><option value="relax">Relax</option><option value="history">Storia</option></select></div><div class="field" style="margin-bottom:8px"><label>Note</label><input type="text" class="bp-notes"></div></div></div></div>`; list.appendChild(div.firstElementChild);ri(); }
-function removeBP(id){const el=document.querySelector(`[data-bp-id="${id}"]`);if(el)el.remove();}
-async function savePt(id){ const title=document.getElementById('p-title')?.value.trim(); if(!title){toast('Manca il titolo');document.getElementById('p-title').focus();return;} const bps=Array.from(document.querySelectorAll('[data-bp-id]')).map(el=>({ id:el.dataset.bpId, name:el.querySelector('.bp-name')?.value.trim()||'', type:el.querySelector('.bp-type')?.value||'food', distance:el.querySelector('.bp-dist')?.value.trim()||'', notes:el.querySelector('.bp-notes')?.value.trim()||'' })); const pt={id,title,region:document.getElementById('p-region')?.value.trim()||'',coords:document.getElementById('p-coords')?.value.trim()||'',description:document.getElementById('p-desc')?.value||'',bestPoints:bps,dateAdded:S.pts.find(x=>x.id===id)?.dateAdded||new Date().toISOString()}; const idx=S.pts.findIndex(x=>x.id===id); if(idx>=0)S.pts[idx]=pt;else S.pts.unshift(pt); await persist();closeModal();toast('Punto salvato!');render(); }
-async function deletePt(id){ if(!confirm('Eliminare questo punto?'))return; S.pts=S.pts.filter(x=>x.id!==id); await persist();closeModal();toast('Eliminato.');goto('viaggiare'); }
-
-/* ================================================
-   SEED DATA
-================================================ */
-function seedIfEmpty(){
-  if(S.itins.length>0||S.pts.length>0)return;
-  // Inserimento default invariato...
-  local('save');
-}
-
-/* ================================================
-   BOOT
-================================================ */
-document.addEventListener('DOMContentLoaded', async () => {
-  local('load');
-  seedIfEmpty();
-  S.route = parseHash();
-  render();
-  initFirebase();
-});
-
-// Global exports
-Object.assign(window,{
-  goto, closeModal, toggleAcc, pickType, pickMode, pickTimeSlot:()=>{},
-  openAllAcc, closeAllAcc, addStage, removeStage, reNumberStages,
-  openItinModal, saveItin, deleteItin,
-  openPointModal, savePt, deletePt, addBP, removeBP,
-  autoCalc, resetAutoCalc, scrollModalBottom,
-  setShopFilter, switchTile, toggleAuth,
-  toast
-});
-</script>
+    ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+  </script>
 </body>
 </html>
