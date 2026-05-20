@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>🏐 Beach Volley Torneo</title>
 
-<!-- 1. LIBRERIE FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
@@ -35,37 +34,6 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 <script>
 'use strict';
 
-/* ═══ 2. CONFIGURAZIONE FIREBASE ════════════════════════════════ */
-// ⬇️ INCOLLA QUI IL TUO firebaseConfig COPIATO DALLA CONSOLE ⬇️
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
-
-const firebaseConfig = {
-
-  apiKey: "AIzaSyBvnnfJCMq5uEjMA7VoFuxV7m63xA3-fEA",
-
-  authDomain: "inviaggiocongiovanni.firebaseapp.com",
-
-  databaseURL: "https://inviaggiocongiovanni-default-rtdb.europe-west1.firebasedatabase.app",
-
-  projectId: "inviaggiocongiovanni",
-
-  storageBucket: "inviaggiocongiovanni.firebasestorage.app",
-
-  messagingSenderId: "357273410261",
-
-  appId: "1:357273410261:web:4382c0aa1528328d5da05c",
-
-  measurementId: "G-MXP3N2JZ5F"
-
-};
-
-// Inizializza Firebase
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-// Creiamo un documento unico chiamato "stato_attuale" dentro la cartella "torneo"
-const docRef = db.collection("torneo").doc("stato_attuale");
-
-
 /* ═══ DATA INIZIALE ═════════════════════════════════════════════ */
 var INIT_TEAMS = [
   {id:1,name:"I di...Sperati",           logo:"",color:"#e74c3c",members:["Casagrande Lorenza","Paterno Ivo","Purin Silvia","Paterno Mara"]},
@@ -80,7 +48,7 @@ var INIT_TEAMS = [
 var teams       = [];
 var matches     = [];
 var odds        = {1:'',2:'',3:'',4:'',5:'',6:''};
-var isLoaded    = false; // Serve per sapere se abbiamo scaricato i dati
+var isLoaded    = false; 
 
 var tab         = 'cal';
 var openMatch   = null;
@@ -89,37 +57,64 @@ var editLogo    = null;
 var logoInput   = '';
 var editMember  = null;
 var memberInput = '';
+var docRef      = null;
 
-/* ═══ SINCRONIZZAZIONE DATABASE ═════════════════════════════════ */
-// Questo "ascolta" il database. Se qualcuno cambia i punti dal suo telefono, 
-// questa funzione scatta in tempo reale e aggiorna la pagina!
-docRef.onSnapshot(function(doc) {
-  if (doc.exists) {
-    var data = doc.data();
-    teams = data.teams || [];
-    matches = data.matches || [];
-    odds = data.odds || {1:'',2:'',3:'',4:'',5:'',6:''};
-    isLoaded = true;
-    render(); // Disegna l'interfaccia con i dati aggiornati
-  } else {
-    // È la prima volta in assoluto! Salviamo i dati base sul database
-    teams = JSON.parse(JSON.stringify(INIT_TEAMS));
-    matches = genMatches(teams);
-    odds = {1:'',2:'',3:'',4:'',5:'',6:''};
-    isLoaded = true;
-    saveToDB();
+/* ═══ CONFIGURAZIONE E SINCRONIZZAZIONE FIREBASE ════════════════ */
+const firebaseConfig = {
+  apiKey: "AIzaSyBvnnfJCMq5uEjMA7VoFuxV7m63xA3-fEA",
+  authDomain: "inviaggiocongiovanni.firebaseapp.com",
+  databaseURL: "https://inviaggiocongiovanni-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "inviaggiocongiovanni",
+  storageBucket: "inviaggiocongiovanni.firebasestorage.app",
+  messagingSenderId: "357273410261",
+  appId: "1:357273410261:web:4382c0aa1528328d5da05c",
+  measurementId: "G-MXP3N2JZ5F"
+};
+
+try {
+  // Inizializza Firebase
+  if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
   }
-});
+  const db = firebase.firestore();
+  docRef = db.collection("torneo").doc("stato_attuale");
+
+  // Ascolta il database
+  docRef.onSnapshot(function(doc) {
+    if (doc.exists) {
+      var data = doc.data();
+      teams = data.teams || [];
+      matches = data.matches || [];
+      odds = data.odds || {1:'',2:'',3:'',4:'',5:'',6:''};
+      isLoaded = true;
+      render(); 
+    } else {
+      teams = JSON.parse(JSON.stringify(INIT_TEAMS));
+      matches = genMatches(teams);
+      odds = {1:'',2:'',3:'',4:'',5:'',6:''};
+      isLoaded = true;
+      saveToDB();
+    }
+  }, function(error) {
+    // SE FIREBASE DA ERRORE, LO STAMPA A SCHERMO
+    document.getElementById('app').innerHTML = '<div style="text-align:center;padding:80px 20px;"><div style="font-size:40px;margin-bottom:10px;">⚠️</div><div style="font-size:18px;font-weight:900;color:#ff6b6b;margin-bottom:10px;">Errore Firebase</div><div style="font-size:13px;color:rgba(255,255,255,0.7);line-height:1.5;">' + error.message + '</div><br><div style="font-size:12px;color:#ffe066;">Ricordati di attivare "Firestore Database" nella console di Firebase e di impostare le Regole su Test Mode!</div></div>';
+  });
+
+} catch (error) {
+  // SE C'È UN ERRORE CRITICO NELL'INIZIALIZZAZIONE
+  window.onload = function() {
+      document.getElementById('app').innerHTML = '<div style="text-align:center;padding:80px 20px;"><div style="font-size:40px;margin-bottom:10px;">⚠️</div><div style="font-size:18px;font-weight:900;color:#ff6b6b;">Errore Critico Inizializzazione:</div><div style="font-size:13px;color:rgba(255,255,255,0.7);">' + error.message + '</div></div>';
+  };
+}
 
 function saveToDB() {
-  // Salva lo stato attuale sul Cloud
+  if(!docRef) return;
   docRef.set({
     teams: teams,
     matches: matches,
     odds: odds
   }, { merge: true });
 }
-
 
 /* ═══ HELPERS ═══════════════════════════════════════════════════ */
 function genMatches(ts){
@@ -165,7 +160,7 @@ function logoEl(team,size){
 
 /* ═══ RENDER ════════════════════════════════════════════════════ */
 function render(){
-  // Se non siamo ancora connessi a Firebase, mostra la schermata di caricamento
+  // Schermata di caricamento INIZIALE
   if(!isLoaded){
     document.getElementById('app').innerHTML='<div style="text-align:center;padding:80px 20px;font-size:18px;font-weight:800;color:#ffe066;">⏳ Connessione al server in corso...</div>';
     return;
@@ -425,7 +420,6 @@ function buildAnalysis(){
 
 /* ═══ AFTER RENDER (event listeners & patches) ═════════════════ */
 function afterRender(){
-  /* logo error fallback */
   document.querySelectorAll('img[data-tl]').forEach(function(img){
     img.onerror=function(){
       var tid=parseInt(this.dataset.tl),sz=parseInt(this.dataset.sz);
@@ -438,28 +432,24 @@ function afterRender(){
     };
   });
 
-  /* QUANDO SI INSERISCE UN PUNTEGGIO, SALVIAMO SUL DATABASE */
   document.querySelectorAll('input[data-mid]').forEach(function(inp){
-    // Usiamo "change" così salva quando hai finito di digitare e clicchi fuori
     inp.addEventListener('change',function(){
       var mid=parseInt(this.dataset.mid),fld=this.dataset.fld;
       var m=matches.find(function(x){return x.id===mid;});
       if(!m)return;
       m[fld]=this.value;
       m.played=['s1h','s1a','s2h','s2a'].every(function(f){return m[f]!==''&&!isNaN(+m[f]);});
-      saveToDB(); // Scrive sul cloud
+      saveToDB(); 
     });
   });
 
-  /* QUANDO SI INSERISCE UNA QUOTA, SALVIAMO SUL DATABASE */
   document.querySelectorAll('input[data-oid]').forEach(function(inp){
     inp.addEventListener('change',function(){
       odds[parseInt(this.dataset.oid)]=this.value;
-      saveToDB(); // Scrive sul cloud
+      saveToDB(); 
     });
   });
 
-  /* input testo loghi */
   var li=document.getElementById('logo-inp');
   if(li){
     li.addEventListener('input',function(){logoInput=this.value;});
@@ -467,7 +457,6 @@ function afterRender(){
     li.focus();var len=li.value.length;li.setSelectionRange(len,len);
   }
 
-  /* input testo membri */
   var mi=document.getElementById('mem-inp');
   if(mi){
     mi.addEventListener('input',function(){memberInput=this.value;});
@@ -528,7 +517,9 @@ function addMember(tid){
   });
   saveToDB();
 }
-  /* ═══ START ═════════════════════════════════════════════════════ */
+
+/* ═══ AVVIO ═════════════════════════════════════════════════════ */
+// Mettiamo il comando finale in modo che parta sicuro
 render();
 </script>
 </body>
