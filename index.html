@@ -48,6 +48,7 @@ var INIT_TEAMS = [
 var teams       = [];
 var matches     = [];
 var odds        = {1:'',2:'',3:'',4:'',5:'',6:''};
+var bets        = {1:'',2:'',3:'',4:'',5:'',6:''}; // NUOVO STATO PATATINE
 var isLoaded    = false; 
 
 var tab         = 'cal';
@@ -86,22 +87,22 @@ try {
       teams = data.teams || [];
       matches = data.matches || [];
       odds = data.odds || {1:'',2:'',3:'',4:'',5:'',6:''};
+      bets = data.bets || {1:'',2:'',3:'',4:'',5:'',6:''};
       isLoaded = true;
       render(); 
     } else {
       teams = JSON.parse(JSON.stringify(INIT_TEAMS));
       matches = genMatches(teams);
       odds = {1:'',2:'',3:'',4:'',5:'',6:''};
+      bets = {1:'',2:'',3:'',4:'',5:'',6:''};
       isLoaded = true;
       saveToDB();
     }
   }, function(error) {
-    // SE FIREBASE DA ERRORE, LO STAMPA A SCHERMO
-    document.getElementById('app').innerHTML = '<div style="text-align:center;padding:80px 20px;"><div style="font-size:40px;margin-bottom:10px;">⚠️</div><div style="font-size:18px;font-weight:900;color:#ff6b6b;margin-bottom:10px;">Errore Firebase</div><div style="font-size:13px;color:rgba(255,255,255,0.7);line-height:1.5;">' + error.message + '</div><br><div style="font-size:12px;color:#ffe066;">Ricordati di attivare "Firestore Database" nella console di Firebase e di impostare le Regole su Test Mode!</div></div>';
+    document.getElementById('app').innerHTML = '<div style="text-align:center;padding:80px 20px;"><div style="font-size:40px;margin-bottom:10px;">⚠️</div><div style="font-size:18px;font-weight:900;color:#ff6b6b;margin-bottom:10px;">Errore Firebase</div><div style="font-size:13px;color:rgba(255,255,255,0.7);line-height:1.5;">' + error.message + '</div></div>';
   });
 
 } catch (error) {
-  // SE C'È UN ERRORE CRITICO NELL'INIZIALIZZAZIONE
   window.onload = function() {
       document.getElementById('app').innerHTML = '<div style="text-align:center;padding:80px 20px;"><div style="font-size:40px;margin-bottom:10px;">⚠️</div><div style="font-size:18px;font-weight:900;color:#ff6b6b;">Errore Critico Inizializzazione:</div><div style="font-size:13px;color:rgba(255,255,255,0.7);">' + error.message + '</div></div>';
   };
@@ -112,7 +113,8 @@ function saveToDB() {
   docRef.set({
     teams: teams,
     matches: matches,
-    odds: odds
+    odds: odds,
+    bets: bets
   }, { merge: true });
 }
 
@@ -190,7 +192,7 @@ function render(){
 
   /* TABS */
   html+='<div style="display:flex;justify-content:center;gap:6px;padding:12px 12px 0;flex-wrap:wrap;">';
-  [['cal','📅 Partite'],['cls','🏆 Classifica'],['sqd','👥 Squadre'],['bet','💰 Scommesse']].forEach(function(p){
+  [['cal','📅 Partite'],['cls','🏆 Classifica'],['sqd','👥 Squadre'],['bet','🍟 Scommesse']].forEach(function(p){
     html+='<button class="tab-btn '+(tab===p[0]?'active':'inactive')+'" onclick="setTab(\''+p[0]+'\')">'+p[1]+'</button>';
   });
   html+='</div>';
@@ -352,19 +354,50 @@ function buildSqd(){
 
 /* ── SCOMMESSE ── */
 function buildBet(){
+  // Calcolo montepremi totale
+  var totalPool = Object.values(bets).reduce(function(sum, val){ return sum + (parseFloat(val) || 0); }, 0);
+
   var h='<div class="card" style="padding:16px;margin-bottom:12px;">';
-  h+='<div style="font-size:14px;font-weight:800;color:#ffe066;margin-bottom:4px;">💰 Quote di Vittoria Torneo</div>';
-  h+='<div style="font-size:11px;color:rgba(255,255,255,.42);margin-bottom:14px;line-height:1.6;">Quota decimale: <b style="color:#ccc;">1.5</b> = favorita &nbsp;·&nbsp; <b style="color:#ccc;">4.0</b> = outsider.</div>';
-  h+='<div style="display:grid;gap:8px;">';
+  h+='<div style="font-size:14px;font-weight:800;color:#ffe066;margin-bottom:4px;">💰 Quote e Scommesse 🍟</div>';
+  h+='<div style="font-size:11px;color:rgba(255,255,255,.42);margin-bottom:14px;line-height:1.6;">Imposta la quota e inserisci le "patatine" puntate su ogni squadra.</div>';
+  
+  // Banner Montepremi
+  h+='<div style="background:rgba(0,0,0,.45);border-radius:10px;padding:12px;text-align:center;margin-bottom:14px;">';
+  h+='<div style="font-size:11px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:1px;font-weight:700;">Montepremi Totale</div>';
+  h+='<div id="tot-pool" style="font-size:24px;font-weight:900;color:#ff9500;margin-top:4px;">'+totalPool+' 🍟</div>';
+  h+='</div>';
+
+  h+='<div style="display:grid;gap:10px;">';
   teams.forEach(function(t){
-    h+='<div style="display:flex;align-items:center;gap:10px;padding:9px 12px;background:rgba(0,0,0,.45);border-radius:10px;">';
-    h+=logoEl(t,32);
-    h+='<span style="font-size:13px;font-weight:700;color:'+t.color+';flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+esc(t.name)+'</span>';
-    h+='<span style="font-size:11px;color:rgba(255,255,255,.3);flex-shrink:0;">quota</span>';
-    h+='<input type="number" min="1.01" step="0.05" value="'+esc(odds[t.id])+'" data-oid="'+t.id+'" placeholder="—" style="width:68px;text-align:center;background:rgba(0,0,0,.65);border:2px solid '+t.color+'88;border-radius:8px;color:#fff;font-size:17px;font-weight:800;padding:5px 0;outline:none;">';
+    var b = parseFloat(bets[t.id]) || 0;
+    var q = parseFloat(odds[t.id]) || 0;
+    var win = (b * q).toFixed(1).replace('.0','');
+
+    h+='<div style="padding:12px;background:rgba(0,0,0,.45);border-radius:10px;">';
+    h+='  <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">';
+    h+=     logoEl(t,26);
+    h+='    <span style="font-size:14px;font-weight:700;color:'+t.color+';flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+esc(t.name)+'</span>';
+    h+='  </div>';
+    h+='  <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;">';
+    h+='    <div style="display:flex;flex-direction:column;gap:4px;">';
+    h+='      <span style="font-size:10px;color:rgba(255,255,255,.4);font-weight:700;text-transform:uppercase;">Quota</span>';
+    h+='      <input type="number" min="1.01" step="0.05" value="'+esc(odds[t.id])+'" data-oid="'+t.id+'" placeholder="—" style="width:65px;text-align:center;background:rgba(0,0,0,.65);border:2px solid '+t.color+'88;border-radius:6px;color:#fff;font-size:15px;font-weight:800;padding:5px 0;outline:none;">';
+    h+='    </div>';
+    h+='    <span style="color:rgba(255,255,255,.2);font-weight:900;padding-top:16px;">×</span>';
+    h+='    <div style="display:flex;flex-direction:column;gap:4px;">';
+    h+='      <span style="font-size:10px;color:rgba(255,255,255,.4);font-weight:700;text-transform:uppercase;">Puntata 🍟</span>';
+    h+='      <input type="number" min="0" step="1" value="'+esc(bets[t.id])+'" data-bid="'+t.id+'" placeholder="0" style="width:75px;text-align:center;background:rgba(0,0,0,.65);border:2px solid #ff950088;border-radius:6px;color:#fff;font-size:15px;font-weight:800;padding:5px 0;outline:none;">';
+    h+='    </div>';
+    h+='    <span style="color:rgba(255,255,255,.2);font-weight:900;padding-top:16px;">=</span>';
+    h+='    <div style="display:flex;flex-direction:column;gap:4px;text-align:right;min-width:70px;">';
+    h+='      <span style="font-size:10px;color:rgba(255,255,255,.4);font-weight:700;text-transform:uppercase;">Vincita 🍟</span>';
+    h+='      <span id="win'+t.id+'" style="font-size:17px;font-weight:900;color:#6eff9a;padding-top:3px;">'+(win>0?win:'—')+'</span>';
+    h+='    </div>';
+    h+='  </div>';
     h+='</div>';
   });
   h+='</div></div>';
+
   h+='<div class="card" style="padding:16px;margin-bottom:12px;">';
   h+='<div style="font-size:14px;font-weight:800;color:#ffe066;margin-bottom:16px;">📊 Probabilità Implicita di Vittoria</div>';
   h+='<div id="prob-chart">'+buildChart()+'</div>';
@@ -443,9 +476,38 @@ function afterRender(){
     });
   });
 
+  /* Aggiorna i calcoli delle scommesse in tempo reale senza ricaricare tutta la pagina */
+  function updateBetUI() {
+    var c=document.getElementById('prob-chart');if(c)c.innerHTML=buildChart();
+    var a=document.getElementById('bet-analysis');if(a)a.innerHTML=buildAnalysis();
+    var totalPool = Object.values(bets).reduce(function(sum, val){ return sum + (parseFloat(val) || 0); }, 0);
+    var tp=document.getElementById('tot-pool');if(tp)tp.textContent=totalPool+' 🍟';
+    
+    teams.forEach(function(t){
+      var wEl=document.getElementById('win'+t.id);
+      if(wEl){
+        var b = parseFloat(bets[t.id]) || 0;
+        var q = parseFloat(odds[t.id]) || 0;
+        var win = (b * q).toFixed(1).replace('.0','');
+        wEl.textContent = win > 0 ? win : '—';
+      }
+    });
+  }
+
+  /* LISTENER QUOTE */
   document.querySelectorAll('input[data-oid]').forEach(function(inp){
     inp.addEventListener('change',function(){
       odds[parseInt(this.dataset.oid)]=this.value;
+      updateBetUI();
+      saveToDB(); 
+    });
+  });
+
+  /* LISTENER PATATINE (PUNTATE) */
+  document.querySelectorAll('input[data-bid]').forEach(function(inp){
+    inp.addEventListener('change',function(){
+      bets[parseInt(this.dataset.bid)]=this.value;
+      updateBetUI();
       saveToDB(); 
     });
   });
@@ -519,7 +581,6 @@ function addMember(tid){
 }
 
 /* ═══ AVVIO ═════════════════════════════════════════════════════ */
-// Mettiamo il comando finale in modo che parta sicuro
 render();
 </script>
 </body>
