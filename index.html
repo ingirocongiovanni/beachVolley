@@ -327,7 +327,7 @@ function render(){
   /* FORMAT STRIP */
   var timeSlot = tournFormat === 'round_robin' ? '20 min' : '27 min';
   html+='<div style="background:rgba(0,0,0,.55);padding:8px 16px;display:flex;justify-content:center;gap:18px;font-size:12px;flex-wrap:wrap;">';
-  [['⏱️ Set 1', tournFormat==='round_robin'?'7 min':'10 min'],['🔄 Cambio','~1 min'],['⏱️ Set 2',tournFormat==='round_robin'?'7 min':'10 min'],['📋 Slot',timeSlot]].forEach(function(p){
+  [['⏱️ Set 1', tournFormat==='round_robin'?'10 min':'10 min'],['⏱️ Set 2',tournFormat==='round_robin'?'10 min':'10 min'],['📋 Slot',timeSlot]].forEach(function(p){
     html+='<div style="text-align:center;"><div style="color:#ffe066;font-weight:700;">'+p[0]+'</div><div style="color:rgba(255,255,255,.7);">'+p[1]+'</div></div>';
   });
   html+='</div>';
